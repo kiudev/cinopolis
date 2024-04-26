@@ -31,17 +31,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { NavigationMenuLink } from "@radix-ui/react-navigation-menu";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { LoaderCircle } from "lucide-react";
+import { stringify } from "querystring";
 
 export default function Home() {
    const [data, setData] = useState<
-      { id: number; posterPath: string; title: string }[]
+      { id: number; posterPath: string; title: string; year: string, voteAverage: number, voteCount: number }[]
    >([]);
-   const [loading, setLoading] = useState(true);
-   const [currentPage, setCurrentPage] = useState(1);
-   const [searchItem, setSearchItem] = useState("");
    const [dataQuery, setDataQuery] = useState<
       { id: number; title: string; posterPath: string; year: string }[]
    >([]);
+
+   const [loading, setLoading] = useState(true);
+   const [currentPage, setCurrentPage] = useState(1);
+   const [searchItem, setSearchItem] = useState("");
+   const [hovered, setHovered] = useState<number | false>(false);
 
    const key = "d7d9147d7ae46dbada53ea4a821b8ded";
 
@@ -57,14 +61,24 @@ export default function Home() {
                   title: string;
                   overview: string;
                   poster_path: string;
+                  release_date: string;
+                  vote_average: number,
+                  vote_count: number,
                }) => {
-                  const { id, title, overview, poster_path } = movie;
+                  const { id, title, overview, poster_path, release_date, vote_average, vote_count } =
+                     movie;
+
+                  const year = release_date.slice(0, 4);
+                  const voteAverage = vote_average.toString().slice(0, 3);
 
                   return {
                      id,
                      title,
                      overview,
                      posterPath: poster_path,
+                     year,
+                     voteAverage,
+                     voteCount: vote_count,
                   };
                }
             );
@@ -90,7 +104,12 @@ export default function Home() {
                   poster_path: string;
                   release_date: string;
                }) => {
-                  const { id, title, poster_path, release_date } = query;
+                  const {
+                     id,
+                     title,
+                     poster_path,
+                     release_date,
+                  } = query;
                   const year = release_date.slice(0, 4);
 
                   return {
@@ -150,9 +169,14 @@ export default function Home() {
       setSearchItem(event.target.value);
    };
 
+   const handleMouseEnter = (id: number) => {
+      setHovered(id);
+   }
+
    return (
       <main className="flex min-h-screen flex-col items-center justify-between p-10 bg-gradient-to-b from-blue-800 from-50% to-blue-900 to-200%">
-         <nav className="fixed backdrop-blur-sm w-screen top-0 flex justify-center py-5">
+         <nav className="fixed backdrop-blur-sm w-screen top-0 flex justify-center lg:justify-between py-5 px-60 items-center">
+            <p>Movies</p>
             <NavigationMenu className="mt-5">
                <NavigationMenuList>
                   {streamingLogos.map(logo => (
@@ -200,6 +224,7 @@ export default function Home() {
                   ))}
                </NavigationMenuList>
             </NavigationMenu>
+            <p>Series</p>
          </nav>
 
          <Input
@@ -208,19 +233,19 @@ export default function Home() {
             value={searchItem}
             onChange={handleSearchChange}
          />
-         <div className="absolute top-40 bg-blue-600 bg-opacity-20">
+         <div className="absolute top-40 bg-blue-900 rounded-xl">
             {searchItem === "" ? (
                <div></div>
             ) : (
-               <ScrollArea className="flex flex-row overflow-x-auto w-[1000px] h-80 p-10 rounded-b-[10px]">
+               <ScrollArea className="flex flex-row overflow-x-auto w-[500px] h-80 p-10 rounded-b-[10px]">
                   {loading ? (
-                     <p>Loading...</p>
+                     <LoaderCircle className="animate-spin" />
                   ) : (
                      <div className="flex flex-row flex-wrap justify-center gap-x-5">
                         {dataQuery.map(data => (
                            <Card
                               key={data.id}
-                              className="border-none mt-5 flex w-80 flex-row items-center gap-10 bg-blue-600 bg-opacity-30 p-2 rounded-[10px]"
+                              className="border-none mt-5 flex w-80 flex-row items-center gap-10 bg-blue-600 bg-opacity-60 p-2 rounded-[10px]"
                            >
                               <Image
                                  className="rounded-xl w-20"
@@ -246,25 +271,42 @@ export default function Home() {
             )}
          </div>
 
-         {loading ? (
-            <div className="flex justify-center items-center">Loading...</div>
-         ) : (
-            <section className="flex flex-wrap mt-10 justify-center items-center min-h-20 flex-row w-[90vw] xl:w-[1000px] gap-3">
-               {data.map(item => (
-                  <Card className="border-none shadow-xl" key={item.id}>
-                     <Image
-                        className="rounded-xl sm:w-[25vw] md:w-[20vw] lg:w-[190px]"
-                        alt=""
-                        src={`https://image.tmdb.org/t/p/w500${item.posterPath}`}
-                        width={500}
-                        height={500}
-                     />
-                  </Card>
-               ))}
-            </section>
-         )}
+         <section>
+            {loading ? (
+               <div className="flex justify-center items-center">
+                  <LoaderCircle className="animate-spin w-20 h-20 text-blue-600" />
+               </div>
+            ) : (
+               <div className="flex flex-wrap mt-10 justify-center items-center min-h-20 flex-row 2xl:w-[1700px] gap-3">
+                  {data.map(item => (
+                     <Card onMouseEnter={() => handleMouseEnter(item.id)} onMouseLeave={() => setHovered(false)} className="border-none" key={item.id}>
+                        <div style={{display: hovered === item.id ? "flex" : "none"}} className="w-[280px] h-20 absolute bg-blue-900 bg-opacity-80 rounded-t-xl text-center flex justify-center items-center text-blue-600 text-md animate-flip-down animate-duration-1000 animate-ease-in-out">
+                           {item.title}
+                        </div>
+
+                        <Image
+                           className="rounded-xl w-[25vw] md:w-[20vw] xl:w-[280px]"
+                           alt=""
+                           src={`https://image.tmdb.org/t/p/w500${item.posterPath}`}
+                           width={500}
+                           height={500}
+                        />
+
+                        <div style={{display: hovered === item.id ? "flex" : "none"}} className="w-[280px] h-20 absolute bg-blue-900 bg-opacity-80 rounded-b-xl text-center flex justify-between items-center text-blue-600 text-md -mt-20 px-5 animate-flip-up animate-duration-1000 animate-ease-in-out">
+                           <ul>
+                              <li className="text-lg">{item.voteAverage}</li>
+                              <li className="text-[12px] text-blue-700">{item.voteCount}</li>
+                           </ul>
+                              <p>{item.year}</p>
+                        </div>
+                     </Card>
+                  ))}
+               </div>
+            )}
+         </section>
 
          <PaginationSection
+            setLoading={setLoading}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
          />
@@ -301,21 +343,35 @@ ListItem.displayName = "ListItem";
 function PaginationSection({
    currentPage,
    setCurrentPage,
+   setLoading,
 }: {
    currentPage: any;
    setCurrentPage: any;
+   setLoading: any;
 }) {
    const handlePrevPage = () => {
+      setLoading(true);
       setCurrentPage(currentPage - 1);
+
+      window.scrollTo({
+         top: 0,
+         behavior: "smooth",
+      });
    };
 
    const handleNextPage = () => {
+      setLoading(true);
       setCurrentPage(currentPage + 1);
+
+      window.scrollTo({
+         top: 0,
+         behavior: "smooth",
+      });
    };
 
    return (
       <Pagination className="mt-10">
-         <PaginationContent className="text-blue-600 border border-blue-600 border-opacity-50">
+         <PaginationContent className="text-blue-600 border border-blue-600 border-opacity-50 p-5 rounded-xl">
             <PaginationItem>
                <PaginationPrevious
                   className="cursor-pointer"
@@ -323,7 +379,12 @@ function PaginationSection({
                />
             </PaginationItem>
 
-            <p>{currentPage}</p>
+            <Input
+               className="w-20 px-3 py-2 text-center border-none text-xl"
+               type="number"
+               onChange={e => setCurrentPage(parseInt(e.target.value))}
+               value={currentPage}
+            />
 
             <PaginationItem>
                <PaginationNext
