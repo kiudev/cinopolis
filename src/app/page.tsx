@@ -34,7 +34,6 @@ import {
    PaginationPrevious,
    PaginationNext,
 } from "@/components/ui/pagination";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { NavigationMenuLink } from "@radix-ui/react-navigation-menu";
 import { Input } from "@/components/ui/input";
@@ -43,6 +42,7 @@ import { LoaderCircle } from "lucide-react";
 import Show from "./shared/api/Show";
 import Movie from "./shared/api/Movie";
 import { key } from "./shared/api/key";
+import { Separator } from "@/components/ui/separator";
 
 export default function Home() {
    const [dataQuery, setDataQuery] = useState<
@@ -53,6 +53,12 @@ export default function Home() {
          year: string;
          name: string;
          profilePath: string;
+         firstAirYear: string;
+         knownForDepartment: string;
+         knownFor: {
+            title: string;
+            name: string;
+         }[];
       }[]
    >([]);
 
@@ -68,34 +74,37 @@ export default function Home() {
             `https://api.themoviedb.org/3/search/multi?query=${title}&api_key=${key}`
          )
          .then(response => {
-            const responseQuery = response.data.results.map(
-               (query: {
-                  id: number;
-                  title: string;
-                  poster_path: string;
-                  release_date: string;
-                  name: string;
-                  profile_path: string;
-               }) => {
-                  const {
-                     id,
-                     title,
-                     poster_path,
-                     release_date,
-                     name,
-                     profile_path,
-                  } = query;
+            const responseQuery = response.data.results.map((query: any) => {
+               const {
+                  id,
+                  title,
+                  poster_path,
+                  release_date,
+                  name,
+                  profile_path,
+                  first_air_date,
+                  known_for_department,
+                  known_for,
+               } = query;
 
-                  return {
-                     id,
-                     title,
-                     posterPath: poster_path,
-                     release_date,
-                     name,
-                     profilePath: profile_path,
-                  };
-               }
-            );
+               const releaseDateObj = new Date(release_date);
+               const firstAirDateObj = new Date(first_air_date);
+
+               const year = releaseDateObj.getFullYear();
+               const firstAirYear = firstAirDateObj.getFullYear();
+
+               return {
+                  id,
+                  title,
+                  posterPath: poster_path,
+                  year,
+                  name,
+                  profilePath: profile_path,
+                  firstAirYear,
+                  knownForDepartment: known_for_department,
+                  knownFor: known_for,
+               };
+            });
 
             setDataQuery(responseQuery);
 
@@ -155,109 +164,146 @@ export default function Home() {
 
    return (
       <main className="flex min-w-screen min-h-screen flex-col items-center justify-between p-10 bg-blue-800">
-         <header className="fixed backdrop-blur-sm w-full top-0 flex flex-row items-center py-8 z-20">
-         <nav className="flex justify-between items-center m-auto gap-x-[740px]">
-            <NavigationMenu>
-               <NavigationMenuList>
-                  {streamingLogos.map(logo => (
-                     <NavigationMenuItem
-                        key={logo.id}
-                        className="flex flex-row"
-                     >
-                        <NavigationMenuTrigger className="text-blue-700 hover:text-blue-700 bg-blue-700 hover:bg-blue-600">
-                           <Image
-                              src={logo.image}
-                              width={50}
-                              height={50}
-                              alt={logo.name}
-                              className="hover:filter hover:brightness-50"
-                           />
-                        </NavigationMenuTrigger>
+         <header className="fixed md:backdrop-blur-sm w-full top-0 flex flex-row items-center py-8 z-20">
+            <nav className="flex flex-wrap justify-center lg:justify-between items-center m-auto gap-x-20 gap-y-5 lg:gap-x-44 2xl:gap-x-[740px] 2xl:gap-y-0">
+               <NavigationMenu>
+                  <NavigationMenuList>
+                     {streamingLogos.map(logo => (
+                        <NavigationMenuItem
+                           key={logo.id}
+                           className="flex flex-row"
+                        >
+                           <NavigationMenuTrigger className="text-blue-700 hover:text-blue-700 bg-blue-700 hover:bg-blue-600">
+                              <Image
+                                 src={logo.image}
+                                 width={50}
+                                 height={50}
+                                 alt={logo.name}
+                                 className="hover:filter hover:brightness-50"
+                              />
+                           </NavigationMenuTrigger>
 
-                        <NavigationMenuContent className="rounded-xl bg-blue-700">
-                           <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                              <li className="row-span-3">
-                                 <NavigationMenuLink asChild>
-                                    <a
-                                       className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                                       href="/"
-                                    >
-                                       <div className="mb-2 mt-4 text-lg font-medium text-blue-600">
-                                          {logo.link}
-                                       </div>
-                                       <p className="text-sm leading-tight text-muted-foreground text-blue-600">
-                                          Beautifully designed components that
-                                          you can copy and paste into your apps.
-                                          Accessible. Customizable. Open Source.
-                                       </p>
-                                    </a>
-                                 </NavigationMenuLink>
-                              </li>
+                           <NavigationMenuContent className="rounded-xl bg-blue-700">
+                              <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                                 <li className="row-span-3">
+                                    <NavigationMenuLink asChild>
+                                       <a
+                                          className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                                          href="/"
+                                       >
+                                          <div className="mb-2 mt-4 text-lg font-medium text-blue-600">
+                                             {logo.link}
+                                          </div>
+                                          <p className="text-sm leading-tight text-muted-foreground text-blue-600">
+                                             Beautifully designed components
+                                             that you can copy and paste into
+                                             your apps. Accessible.
+                                             Customizable. Open Source.
+                                          </p>
+                                       </a>
+                                    </NavigationMenuLink>
+                                 </li>
 
-                              <li>
-                                 <NavigationMenuLink>
-                                    <a href="#">{logo.new}</a>
-                                 </NavigationMenuLink>
-                              </li>
-                           </ul>
-                        </NavigationMenuContent>
-                     </NavigationMenuItem>
-                  ))}
-               </NavigationMenuList>
-            </NavigationMenu>
+                                 <li>
+                                    <NavigationMenuLink>
+                                       <a href="#">{logo.new}</a>
+                                    </NavigationMenuLink>
+                                 </li>
+                              </ul>
+                           </NavigationMenuContent>
+                        </NavigationMenuItem>
+                     ))}
+                  </NavigationMenuList>
+               </NavigationMenu>
 
-            <Input
-               className="bg-blue-600 bg-opacity-30 border-none rounded-[5px] px-5 py-5 w-80 text-center text-blue-600 text-lg"
-               placeholder="Search"
-               value={searchItem}
-               onChange={handleSearchChange}
-            />
-         </nav>
+               <Input
+                  className="bg-blue-700 border-none rounded-[5px] px-5 py-5 w-80 text-left text-blue-600 text-lg"
+                  placeholder="Search"
+                  value={searchItem}
+                  onChange={handleSearchChange}
+               />
+            </nav>
          </header>
 
-         <div className="fixed right-56 top-20 bg-blue-900 bg-opacity-50 rounded-xl z-20">
+         <div className="fixed right-56 top-20 bg-opacity-50 rounded-xl z-20">
             {searchItem === "" ? (
                <div></div>
             ) : (
-               <ScrollArea className="flex flex-row w-[1200px] p-10 h-80 rounded-b-[10px]">
+               <ScrollArea className="flex flex-row w-[700px] h-80 rounded-xl">
                   {loading ? (
                      <LoaderCircle className="animate-spin" />
                   ) : (
-                     <div className="grid grid-cols-3 grid-flow-dense gap-x-5">
+                     <div className="grid grid-flow-dense">
                         {dataQuery.map(data => (
                            <Card
                               key={data.id}
-                              className="border-none mt-5 flex w-80 h-auto flex-row items-center gap-10 bg-blue-800 p-0 rounded-[10px]"
+                              className="border-none flex w-full h-auto flex-row items-center bg-blue-700 p-0"
                            >
-                              <Image
-                                 className="rounded-xl w-20"
-                                 alt=""
-                                 src={`https://image.tmdb.org/t/p/w154${
-                                    data.posterPath || data.profilePath
-                                 }`}
-                                 width={500}
-                                 height={500}
-                              />
+                              <div className="flex flex-wrap gap-x-3">
+                                 {data.posterPath || data.profilePath ? (
+                                    <Image
+                                       className="w-20 p-2"
+                                       alt=""
+                                       src={`https://image.tmdb.org/t/p/w154${
+                                          data.posterPath || data.profilePath
+                                       }`}
+                                       width={500}
+                                       height={500}
+                                    />
+                                 ) : (
+                                    <Image
+                                       className="w-20 p-2"
+                                       alt=""
+                                       src={`https://i0.wp.com/digitalhealthskills.com/wp-content/uploads/2022/11/3da39-no-user-image-icon-27.png?fit=500%2C500&ssl=1`}
+                                       width={500}
+                                       height={500}
+                                    />
+                                 )}
 
-                              <ul>
-                                 <li className="text-center text-blue-600">
-                                    {data.title || data.name}
-                                 </li>
-                                 <li className="text-center text-primary">
-                                    {data.year}
-                                 </li>
-                              </ul>
+                                 <ul>
+                                    <li className="text-left text-blue-600 w-96 text-lg font-semibold mt-2">
+                                       {data.title || data.name}
+                                    </li>
+
+                                    <li className="text-left text-md text-blue-600 text-opacity-60">
+                                       {data.year ||
+                                          data.firstAirYear ||
+                                          data.knownForDepartment}
+                                    </li>
+
+                                    <div className="flex w-full gap-2 mt-2">
+                                       {Array.isArray(data.knownFor) &&
+                                          data.knownFor.map((person: any, index: number) => (
+                                             <ul
+                                                key={person.id}
+                                                className="flex justify-center flex-row"
+                                             >
+                                                <li className="text-left text-md text-blue-600">
+                                                   {person.title || person.name}
+                                                   {index < data.knownFor.length - 1 ? "," : " "}
+                                                </li>
+                                             </ul>
+                                          ))}
+                                    </div>
+                                 </ul>
+
+                                 <Separator className="bg-blue-600 w-[700px] bg-opacity-60" />
+                              </div>
                            </Card>
                         ))}
                      </div>
                   )}
-                  <ScrollBar className="bg-blue-600 scrollbar-thumb-red-500" orientation="vertical" />
+
+                  <ScrollBar
+                     className="bg-blue-600 scrollbar-thumb-red-500"
+                     orientation="vertical"
+                  />
                </ScrollArea>
             )}
          </div>
 
          <section className="mt-20">
-            <div className="flex flex-row gap-5 w-40">
+            <div className="flex flex-row gap-5 w-full">
                <p
                   className={`text-3xl font-semibold ${
                      !clicked
@@ -270,6 +316,7 @@ export default function Home() {
                >
                   Movies
                </p>
+
                <p
                   className={`text-3xl font-semibold ${
                      clicked
@@ -283,6 +330,7 @@ export default function Home() {
                   TV
                </p>
             </div>
+
             {clicked ? (
                <Show
                   setLoading={setLoading}
@@ -294,7 +342,6 @@ export default function Home() {
                   setLoading={setLoading}
                   loading={loading}
                   currentPage={currentPage}
-
                />
             )}
          </section>
