@@ -13,6 +13,26 @@ import {
    CarouselPrevious,
 } from "@/components/ui/carousel";
 
+import {
+   Drawer,
+   DrawerClose,
+   DrawerContent,
+   DrawerDescription,
+   DrawerFooter,
+   DrawerHeader,
+   DrawerTitle,
+   DrawerTrigger,
+} from "@/components/ui/drawer";
+
+import {
+   Dialog,
+   DialogContent,
+   DialogDescription,
+   DialogHeader,
+   DialogTitle,
+   DialogTrigger,
+} from "@/components/ui/dialog";
+
 import { Backpack, Loader, LoaderCircle } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 import CardLayout from "@/layout/CardLayout";
@@ -35,6 +55,7 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
          voteAverage: number;
          voteCount: number;
          backdropPath: string;
+         overview: string;
       }[]
    >([]);
    const [castData, setCastData] = useState<
@@ -45,7 +66,20 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
          nameCharacter: string;
       }[]
    >([]);
-   const [movieSelected, setMovieSelected] = useState<number | false>(false);
+   const [movieSelected, setMovieSelected] = useState<
+      | {
+           id: number;
+           posterPath: string;
+           title: string;
+           year: string;
+           voteAverage: number;
+           voteCount: number;
+           backdropPath: string;
+           overview: string;
+        }
+      | false
+   >(false);
+   const [dialogOpen, setDialogOpen] = useState(false);
 
    const getData = (pageNumber: number) => {
       try {
@@ -138,12 +172,16 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
    };
 
    const handleMovieSelected = (id: number) => {
-      setMovieSelected(id);
+      const movieFound = movieData.find(movie => movie.id === id);
+      if (movieFound) {
+         setMovieSelected(movieFound);
+         setDialogOpen(true);
+      }
    };
 
    return (
       <section className="flex justify-center min-w-screen min-h-screen">
-         <div className="bg-gradient-to-t from-blue-800 from-80% to-transparent w-full h-[150vh] mt-[300px] absolute z-10"></div>
+         <div className="bg-gradient-to-t from-blue-800 from-80% to-transparent w-full h-[20rem] mt-[450px] absolute z-10"></div>
 
          <div className="bg-gradient-to-b from-blue-800 from-5% to-transparent w-full h-[100px] absolute z-10"></div>
 
@@ -180,27 +218,53 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
             )}
          </header>
 
-         <div className="flex flex-wrap mt-24 lg:mt-[500px] justify-center items-center min-h-20 flex-row w-full 2xl:w-[1500px] gap-y-32 gap-x-5 xl:gap-y-5 z-10 absolute">
-            {movieData.map(movie => (
-               <div key={movie.id}>
-                  <CardLayout
-                     onClick={() => handleMovieSelected(movie.id)}
-                     onMouseEnter={() => handleMouseEnter(movie.id)}
-                     onMouseLeave={() => setHovered(false)}
-                     loading={loading}
-                     headerStyle={{
-                        display: hovered === movie.id ? "flex" : "none",
-                     }}
-                     year={movie.year}
-                     voteAverage={movie.voteAverage}
-                     voteCount={movie.voteCount}
-                     alt={movie.title}
-                     backdropPath={movie.backdropPath}
-                     title={movie.title}
-                  />
+         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+               <div className="flex flex-wrap mt-24 lg:mt-[500px] justify-center items-center min-h-20 flex-row w-full 2xl:w-[1500px] gap-y-32 gap-x-5 xl:gap-y-5 z-10 absolute">
+                  {movieData.map(movie => (
+                     <div key={movie.id}>
+                        <CardLayout
+                           onClick={() => handleMovieSelected(movie.id)}
+                           onMouseEnter={() => handleMouseEnter(movie.id)}
+                           onMouseLeave={() => setHovered(false)}
+                           loading={loading}
+                           headerStyle={{
+                              display: hovered === movie.id ? "flex" : "none",
+                           }}
+                           year={movie.year}
+                           voteAverage={movie.voteAverage}
+                           voteCount={movie.voteCount}
+                           alt={movie.title}
+                           backdropPath={movie.backdropPath}
+                           title={movie.title}
+                        />
+                     </div>
+                  ))}
                </div>
-            ))}
-         </div>
+            </DialogTrigger>
+
+            {movieSelected && (
+               <DialogContent className="grid grid-rows-3 grid-flow-col gap-5 sm:max-w-[800px] max-h-[500px] border-none bg-blue-900 text-blue-600">
+                  <Image
+                     className="w-60 p-2 rounded-xl row-span-3"
+                     alt=""
+                     src={`https://image.tmdb.org/t/p/w500${
+                        movieSelected.posterPath
+                     }`}
+                     width={500}
+                     height={500}
+                  />
+                  <DialogHeader className="flex flex-col gap-5">
+                  <DialogTitle className="text-blue-600 font-bold text-4xl">
+                     {movieSelected.title}
+                  </DialogTitle>
+                  <DialogDescription className="text-blue-600 text-opacity-60 text-lg">
+                     {movieSelected.overview}
+                  </DialogDescription>
+                  </DialogHeader>
+               </DialogContent>
+            )}
+         </Dialog>
       </section>
    );
 }
