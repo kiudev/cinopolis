@@ -63,7 +63,7 @@ export default function CardLayout({
                <Image
                   className="rounded-xl w-[18rem] sm:w-[18rem] md:w-[20rem] xl:w-[500px] h-[160px] xl:h-[200px]"
                   alt={alt}
-                  src={`https://image.tmdb.org/t/p/w500/${backdropPath}`}
+                  src={`https://image.tmdb.org/t/p/w780/${backdropPath}`}
                   width={500}
                   height={500}
                />

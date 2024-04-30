@@ -33,10 +33,18 @@ import {
    DialogTrigger,
 } from "@/components/ui/dialog";
 
+import {
+   Tooltip,
+   TooltipContent,
+   TooltipProvider,
+   TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 import { Backpack, Loader, LoaderCircle } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 import CardLayout from "@/layout/CardLayout";
 import CarouselLayout from "@/layout/CarouselLayout";
+import { ImageIcon } from "lucide-react";
 
 interface Props {
    loading: boolean;
@@ -58,14 +66,6 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
          overview: string;
       }[]
    >([]);
-   const [castData, setCastData] = useState<
-      {
-         id: number;
-         profilePath: string;
-         name: string;
-         nameCharacter: string;
-      }[]
-   >([]);
    const [movieSelected, setMovieSelected] = useState<
       | {
            id: number;
@@ -76,6 +76,7 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
            voteCount: number;
            backdropPath: string;
            overview: string;
+           cast?: any[];
         }
       | false
    >(false);
@@ -137,35 +138,43 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
       }
    };
 
-   // const getMovieCast = (id: number) => {
-   //    try {
-   //       axios
-   //          .get(
-   //             `https://api.themoviedb.org/3/movie/credits/${id}?api_key=${key}`
-   //          )
-   //          .then(response => {
-   //             const data = response.data.results.map((cast: any) => ({
-   //                id: cast.id,
-   //                name: cast.name,
-   //                profilePath: cast.profilePath,
-   //                nameCharacter: cast.character,
-   //             }));
+   const getMovieCast = (id: number) => {
+      try {
+         axios
+            .get(
+               `https://api.themoviedb.org/3/movie/${id}/credits?api_key=${key}`
+            )
+            .then(response => {
+               const castData = response.data.cast.map((actor: any) => ({
+                  id: actor.id,
+                  name: actor.name,
+                  profilePath: actor.profile_path,
+                  nameCharacter: actor.character,
+                  popularity: actor.popularity,
+               }));
 
-   //             setCastData(data);
-   //          });
-   //    } catch (error) {
-   //       console.error("Error loading movie details", error);
-   //    }
-   // };
+               const sortPopularity = castData.sort(
+                  (a: any, b: any) => b.popularity - a.popularity
+               );
+
+               const popularActors = sortPopularity.slice(0, 5);
+
+               setMovieSelected(prevData => {
+                  if (prevData === false) {
+                     return prevData;
+                  } else {
+                     return { ...prevData, cast: popularActors };
+                  }
+               });
+            });
+      } catch (error) {
+         console.error("Error loading movie details", error);
+      }
+   };
 
    useEffect(() => {
       getData(currentPage);
    }, [currentPage]);
-
-   // useEffect(() => {
-   //    const movieId = movieData.map(data => data.id)
-   //    getMovieCast(movieId);
-   // }, [movieId]);
 
    const handleMouseEnter = (id: number) => {
       setHovered(id);
@@ -173,7 +182,9 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
 
    const handleMovieSelected = (id: number) => {
       const movieFound = movieData.find(movie => movie.id === id);
+
       if (movieFound) {
+         getMovieCast(id);
          setMovieSelected(movieFound);
          setDialogOpen(true);
       }
@@ -244,23 +255,63 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
             </DialogTrigger>
 
             {movieSelected && (
-               <DialogContent className="grid grid-rows-3 grid-flow-col gap-5 sm:max-w-[800px] max-h-[500px] border-none bg-blue-900 text-blue-600">
+               <DialogContent className="grid grid-rows-3 grid-flow-col gap-10 sm:max-w-[1000px] max-h-[500px] border-none text-blue-600 rounded-xl">
                   <Image
-                     className="w-60 p-2 rounded-xl row-span-3"
-                     alt=""
-                     src={`https://image.tmdb.org/t/p/w500${
-                        movieSelected.posterPath
-                     }`}
+                     className="w-72 row-span-3"
+                     alt={movieSelected.title}
+                     src={`https://image.tmdb.org/t/p/w500${movieSelected.posterPath}`}
                      width={500}
                      height={500}
                   />
+                  <div className="bg-blue-700 absolute w-10 h-14 left-5 flex justify-center">
+                     <p className="px-10 py-6 text-lg">
+                        {movieSelected.voteAverage}
+                     </p>
+                  </div>
                   <DialogHeader className="flex flex-col gap-5">
-                  <DialogTitle className="text-blue-600 font-bold text-4xl">
-                     {movieSelected.title}
-                  </DialogTitle>
-                  <DialogDescription className="text-blue-600 text-opacity-60 text-lg">
-                     {movieSelected.overview}
-                  </DialogDescription>
+                     <DialogTitle className="text-blue-600 font-bold text-6xl flex flex-row gap-5 items-center">
+                        <p>
+                           {movieSelected.title}
+                           <p className="text-xl mt-2">{movieSelected.year}</p>
+                        </p>
+                     </DialogTitle>
+
+                     <DialogDescription className="text-blue-600 text-opacity-60 text-md">
+                        {movieSelected.overview}
+                     </DialogDescription>
+                     <footer className="flex flex-row items-center">
+                        {movieSelected.cast?.map(actor => (
+                           <TooltipProvider delayDuration={100}>
+                              <Tooltip key={actor.id}>
+                                 <TooltipTrigger asChild>
+                                    {actor.profilePath ? (
+                                       <Image
+                                          className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-40"
+                                          alt=""
+                                          src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
+                                          width={500}
+                                          height={500}
+                                       />
+                                    ) : (
+                                       <ImageIcon className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-36 bg-blue-900" />
+                                    )}
+                                 </TooltipTrigger>
+
+                                 <TooltipContent
+                                    side="bottom"
+                                    className="border-none shadow-none"
+                                 >
+                                    <p className="font-semibold text-lg">
+                                       {actor.name}
+                                    </p>
+                                    <p className="text-blue-600 text-opacity-60">
+                                       {actor.nameCharacter}
+                                    </p>
+                                 </TooltipContent>
+                              </Tooltip>
+                           </TooltipProvider>
+                        ))}
+                     </footer>
                   </DialogHeader>
                </DialogContent>
             )}
