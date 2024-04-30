@@ -34,6 +34,7 @@ import {
    PaginationPrevious,
    PaginationNext,
 } from "@/components/ui/pagination";
+
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { NavigationMenuLink } from "@radix-ui/react-navigation-menu";
 import { Input } from "@/components/ui/input";
@@ -43,6 +44,7 @@ import Show from "./shared/api/Show";
 import Movie from "./shared/api/Movie";
 import { key } from "./shared/api/key";
 import { Separator } from "@/components/ui/separator";
+import { Image as ImageIcon } from "lucide-react";
 
 export default function Home() {
    const [dataQuery, setDataQuery] = useState<
@@ -225,11 +227,11 @@ export default function Home() {
             </nav>
          </header>
 
-         <div className="fixed right-56 top-20 bg-opacity-50 rounded-xl z-20">
+         <div className="fixed xl:right-56 md:right-20 lg:right-40 md:top-20 top-36 lg:top-20 bg-opacity-50 rounded-xl z-20">
             {searchItem === "" ? (
                <div></div>
             ) : (
-               <ScrollArea className="flex flex-row w-[700px] h-80 rounded-xl">
+               <ScrollArea className="flex flex-row w-[300px] lg:w-[700px] h-80 rounded-xl">
                   {loading ? (
                      <LoaderCircle className="animate-spin" />
                   ) : (
@@ -242,7 +244,7 @@ export default function Home() {
                               <div className="flex flex-wrap gap-x-3">
                                  {data.posterPath || data.profilePath ? (
                                     <Image
-                                       className="w-20 p-2"
+                                       className="w-20 p-2 rounded-xl"
                                        alt=""
                                        src={`https://image.tmdb.org/t/p/w154${
                                           data.posterPath || data.profilePath
@@ -251,13 +253,7 @@ export default function Home() {
                                        height={500}
                                     />
                                  ) : (
-                                    <Image
-                                       className="w-20 p-2"
-                                       alt=""
-                                       src={`https://i0.wp.com/digitalhealthskills.com/wp-content/uploads/2022/11/3da39-no-user-image-icon-27.png?fit=500%2C500&ssl=1`}
-                                       width={500}
-                                       height={500}
-                                    />
+                                    <ImageIcon className="w-16 ml-2 p-2 h-20 bg-blue-900 text-blue-600" />
                                  )}
 
                                  <ul>
@@ -273,17 +269,23 @@ export default function Home() {
 
                                     <div className="flex w-full gap-2 mt-2">
                                        {Array.isArray(data.knownFor) &&
-                                          data.knownFor.map((person: any, index: number) => (
-                                             <ul
-                                                key={person.id}
-                                                className="flex justify-center flex-row"
-                                             >
-                                                <li className="text-left text-md text-blue-600">
-                                                   {person.title || person.name}
-                                                   {index < data.knownFor.length - 1 ? "," : " "}
-                                                </li>
-                                             </ul>
-                                          ))}
+                                          data.knownFor.map(
+                                             (person: any, index: number) => (
+                                                <ul
+                                                   key={person.id}
+                                                   className="flex justify-center flex-row"
+                                                >
+                                                   <li className="text-left text-md text-blue-600">
+                                                      {person.title ||
+                                                         person.name}
+                                                      {index <
+                                                      data.knownFor.length - 1
+                                                         ? ","
+                                                         : " "}
+                                                   </li>
+                                                </ul>
+                                             )
+                                          )}
                                     </div>
                                  </ul>
 
@@ -294,10 +296,7 @@ export default function Home() {
                      </div>
                   )}
 
-                  <ScrollBar
-                     className="bg-blue-600 scrollbar-thumb-red-500"
-                     orientation="vertical"
-                  />
+                  <ScrollBar orientation="vertical" />
                </ScrollArea>
             )}
          </div>
