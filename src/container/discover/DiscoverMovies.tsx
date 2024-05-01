@@ -1,10 +1,7 @@
-import axios from "axios";
-import { key } from "./key";
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import axios from "axios";
+import { key } from "@/app/key";
 
-import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
    Carousel,
    CarouselContent,
@@ -12,17 +9,6 @@ import {
    CarouselNext,
    CarouselPrevious,
 } from "@/components/ui/carousel";
-
-import {
-   Drawer,
-   DrawerClose,
-   DrawerContent,
-   DrawerDescription,
-   DrawerFooter,
-   DrawerHeader,
-   DrawerTitle,
-   DrawerTrigger,
-} from "@/components/ui/drawer";
 
 import {
    Dialog,
@@ -40,21 +26,30 @@ import {
    TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { Backpack, Loader, LoaderCircle } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
-import CardLayout from "@/layout/CardLayout";
-import CarouselLayout from "@/layout/CarouselLayout";
+import CardLayout from "@/components/layout/CardLayout";
+import CarouselItemLayout from "@/components/layout/CarouselItemLayout";
 import { ImageIcon } from "lucide-react";
+import Image from "next/image";
+import CarouselLayout from "@/components/layout/CarouselLayout";
 
 interface Props {
    loading: boolean;
    setLoading: Function;
    currentPage: number;
+   filterList: string;
+   contentType: string;
 }
 
-export default function Movie({ loading, setLoading, currentPage }: Props) {
-   const [hovered, setHovered] = useState<number | false>(false);
-   const [movieData, setMovieData] = useState<
+export default function DiscoverMovies({
+   loading,
+   setLoading,
+   currentPage,
+   filterList,
+   contentType,
+}: Props) {
+   const [data, setData] = useState<
       {
          id: number;
          posterPath: string;
@@ -66,7 +61,7 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
          overview: string;
       }[]
    >([]);
-   const [movieSelected, setMovieSelected] = useState<
+   const [selected, setSelected] = useState<
       | {
            id: number;
            posterPath: string;
@@ -80,57 +75,32 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
         }
       | false
    >(false);
-   const [dialogOpen, setDialogOpen] = useState(false);
+
+   const [hovered, setHovered] = useState<number | false>(false);
+   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
    const getData = (pageNumber: number) => {
       try {
          axios
             .get(
-               `https://api.themoviedb.org/3/discover/movie?api_key=${key}&page=${pageNumber}`
+               `https://api.themoviedb.org/3/${filterList}/${contentType}?api_key=${key}&page=${pageNumber}`
             )
             .then(response => {
-               const data = response.data.results.map(
-                  (movie: {
-                     id: number;
-                     title: string;
-                     overview: string;
-                     poster_path: string;
-                     release_date: string;
-                     vote_average: number;
-                     vote_count: number;
-                     backdrop_path: string;
-                  }) => {
-                     const {
-                        id,
-                        title,
-                        overview,
-                        poster_path,
-                        release_date,
-                        vote_average,
-                        vote_count,
-                        backdrop_path,
-                     } = movie;
+               const results = response.data.results.map((data: any) => ({
+                  id: data.id,
+                  title: data.title,
+                  overview: data.overview,
+                  posterPath: data.poster_path,
+                  year: data.release_date.slice(0, 4),
+                  voteAverage: Number(data.vote_average.toFixed(1)),
+                  voteCount: data.vote_count,
+                  backdropPath: data.backdrop_path,
+               }));
 
-                     const year = release_date.slice(0, 4);
-                     const voteAverage = vote_average.toString().slice(0, 3);
-
-                     return {
-                        id,
-                        title,
-                        overview,
-                        posterPath: poster_path,
-                        year,
-                        voteAverage,
-                        voteCount: vote_count,
-                        backdropPath: backdrop_path,
-                     };
-                  }
-               );
-
-               setMovieData(data);
+               setData(results);
             });
       } catch (error) {
-         console.error("Error loading movie data", error);
+         console.error("Error loading results", error);
       } finally {
          setTimeout(() => {
             setLoading(false);
@@ -138,11 +108,15 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
       }
    };
 
-   const getMovieCast = (id: number) => {
+   useEffect(() => {
+      getData(currentPage);
+   }, [currentPage]);
+
+   const getCast = (id: number) => {
       try {
          axios
             .get(
-               `https://api.themoviedb.org/3/movie/${id}/credits?api_key=${key}`
+               `https://api.themoviedb.org/3/${contentType}/${id}/credits?api_key=${key}`
             )
             .then(response => {
                const castData = response.data.cast.map((actor: any) => ({
@@ -159,7 +133,7 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
 
                const popularActors = sortPopularity.slice(0, 5);
 
-               setMovieSelected(prevData => {
+               setSelected(prevData => {
                   if (prevData === false) {
                      return prevData;
                   } else {
@@ -172,70 +146,49 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
       }
    };
 
-   useEffect(() => {
-      getData(currentPage);
-   }, [currentPage]);
-
    const handleMouseEnter = (id: number) => {
       setHovered(id);
    };
 
-   const handleMovieSelected = (id: number) => {
-      const movieFound = movieData.find(movie => movie.id === id);
+   const handleSelected = (id: number) => {
+      const resultFound = data.find(result => result.id === id);
 
-      if (movieFound) {
-         getMovieCast(id);
-         setMovieSelected(movieFound);
+      if (resultFound) {
+         getCast(id);
+         setSelected(resultFound);
          setDialogOpen(true);
       }
    };
 
+   const handleOpenChange = () => {
+      setDialogOpen(!dialogOpen);
+   };
+
    return (
-      <section className="flex justify-center min-w-screen min-h-screen">
-         <div className="bg-gradient-to-t from-blue-800 from-80% to-transparent w-full h-[20rem] mt-[450px] absolute z-10"></div>
-
-         <div className="bg-gradient-to-b from-blue-800 from-5% to-transparent w-full h-[100px] absolute z-10"></div>
-
-         <header className="lg:flex hidden">
-            {loading ? (
-               <div className="flex justify-center items-center w-[250px] md:w-[250px] xl:w-[1400px] xl:h-[500px]">
-                  <LoaderCircle className="w-[250px] md:w-[250px] xl:w-[1400px] h-4 xl:h-[100px] text-blue-600 animate-spin" />
-               </div>
-            ) : (
-               <Carousel
-                  plugins={[
-                     Autoplay({
-                        delay: 4000,
-                     }),
-                  ]}
-                  opts={{ align: "start", loop: true }}
-                  className="lg:w-[900px] xl:w-[1000px] 2xl:w-[1460px] h-[550px] rounded-xl bg-blue-700 border border-blue-700 bg-opacity-10"
-               >
-                  <CarouselContent className="xl:w-[1015px] 2xl:w-[1500px]">
-                     {movieData.map(movie => (
-                        <CarouselLayout
-                           key={movie.id}
-                           title={movie.title}
-                           alt={movie.title}
-                           backdropPath={movie.backdropPath}
-                        />
-                     ))}
-                  </CarouselContent>
-
-                  <CarouselPrevious className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20" />
-
-                  <CarouselNext className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20" />
-               </Carousel>
-            )}
-         </header>
+      <section className="flex justify-center min-w-screen min-h-screen mt-40">
+         <CarouselLayout
+            loading={loading}
+            dialogOpen={dialogOpen}
+            setDialogOpen={handleOpenChange}
+         >
+            {data.map(movie => (
+               <CarouselItemLayout
+                  key={movie.id}
+                  title={movie.title}
+                  alt={movie.title}
+                  backdropPath={movie.backdropPath}
+                  onClick={() => handleSelected(movie.id)}
+               />
+            ))}
+         </CarouselLayout>
 
          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
                <div className="flex flex-wrap mt-24 lg:mt-[500px] justify-center items-center min-h-20 flex-row w-full 2xl:w-[1500px] gap-y-32 gap-x-5 xl:gap-y-5 z-10 absolute">
-                  {movieData.map(movie => (
+                  {data.map(movie => (
                      <div key={movie.id}>
                         <CardLayout
-                           onClick={() => handleMovieSelected(movie.id)}
+                           onClick={() => handleSelected(movie.id)}
                            onMouseEnter={() => handleMouseEnter(movie.id)}
                            onMouseLeave={() => setHovered(false)}
                            loading={loading}
@@ -254,40 +207,40 @@ export default function Movie({ loading, setLoading, currentPage }: Props) {
                </div>
             </DialogTrigger>
 
-            {movieSelected && (
+            {selected && (
                <DialogContent className="grid grid-rows-3 grid-flow-col gap-10 sm:max-w-[1000px] max-h-[500px] border-none text-blue-600 rounded-xl">
                   <Image
                      className="w-72 row-span-3"
-                     alt={movieSelected.title}
-                     src={`https://image.tmdb.org/t/p/w500${movieSelected.posterPath}`}
+                     alt={selected.title}
+                     src={`https://image.tmdb.org/t/p/w500${selected.posterPath}`}
                      width={500}
                      height={500}
                   />
                   <div className="bg-blue-700 absolute w-10 h-14 left-5 flex justify-center">
                      <p className="px-10 py-6 text-lg">
-                        {movieSelected.voteAverage}
+                        {selected.voteAverage}
                      </p>
                   </div>
                   <DialogHeader className="flex flex-col gap-5">
                      <DialogTitle className="text-blue-600 font-bold text-6xl flex flex-row gap-5 items-center">
                         <p>
-                           {movieSelected.title}
-                           <p className="text-xl mt-2">{movieSelected.year}</p>
+                           {selected.title}
+                           <p className="text-xl mt-2">{selected.year}</p>
                         </p>
                      </DialogTitle>
 
                      <DialogDescription className="text-blue-600 text-opacity-60 text-md">
-                        {movieSelected.overview}
+                        {selected.overview}
                      </DialogDescription>
                      <footer className="flex flex-row items-center">
-                        {movieSelected.cast?.map(actor => (
+                        {selected.cast?.map(actor => (
                            <TooltipProvider delayDuration={100}>
                               <Tooltip key={actor.id}>
                                  <TooltipTrigger asChild>
                                     {actor.profilePath ? (
                                        <Image
                                           className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-40"
-                                          alt=""
+                                          alt={actor.name}
                                           src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
                                           width={500}
                                           height={500}

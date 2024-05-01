@@ -35,16 +35,27 @@ import {
    PaginationNext,
 } from "@/components/ui/pagination";
 
+import {
+   Select,
+   SelectContent,
+   SelectItem,
+   SelectTrigger,
+   SelectValue,
+} from "@/components/ui/select";
+
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { NavigationMenuLink } from "@radix-ui/react-navigation-menu";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { LoaderCircle } from "lucide-react";
-import Show from "./shared/api/Show";
-import Movie from "./shared/api/Movie";
-import { key } from "./shared/api/key";
+import { key } from "./key";
 import { Separator } from "@/components/ui/separator";
 import { Image as ImageIcon } from "lucide-react";
+
+import DiscoverMovies from "@/container/discover/DiscoverMovies";
+import DiscoverTV from "@/container/discover/DiscoverTV";
+import PopularMovies from "@/container/popular/PopularMovies";
+import PopularTV from "@/container/popular/PopularTV";
 
 export default function Home() {
    const [dataQuery, setDataQuery] = useState<
@@ -69,6 +80,8 @@ export default function Home() {
    const [searchItem, setSearchItem] = useState("");
    const [hovered, setHovered] = useState<number | false>(false);
    const [clicked, setClicked] = useState(false);
+   const [filterList, setFilterList] = useState("discover");
+   const [contentType, setContentType] = useState("movie");
 
    const getQuery = (title: string) => {
       axios
@@ -160,13 +173,28 @@ export default function Home() {
       setSearchItem(event.target.value);
    };
 
-   const handleMouseEnter = (id: number) => {
-      setHovered(id);
+   // const handleMouseEnter = (id: number) => {
+   //    setHovered(id);
+   // };
+
+   const handleFilterChange = (filter: string) => {
+      setFilterList(filter);
+      if (filterList === "discover") {
+         setFilterList("discover");
+         setContentType("movie");
+         if (contentType === "movie") {
+            setFilterList("popular");
+            setContentType("movie");
+         } else {
+            setFilterList("popular");
+            setContentType("tv");
+         }
+      }
    };
 
    return (
       <main className="flex min-w-screen min-h-screen flex-col items-center justify-between p-10 bg-blue-800">
-         <header className="fixed md:backdrop-blur-sm w-full top-0 flex flex-row items-center py-8 z-20">
+         <header className="fixed md:bg-blue-800 md:bg-opacity-60 w-full top-0 flex flex-col items-center py-8 z-20">
             <nav className="flex flex-wrap justify-center lg:justify-between items-center m-auto gap-x-20 gap-y-5 lg:gap-x-44 2xl:gap-x-[740px] 2xl:gap-y-0">
                <NavigationMenu>
                   <NavigationMenuList>
@@ -225,125 +253,190 @@ export default function Home() {
                   onChange={handleSearchChange}
                />
             </nav>
+            <div className="fixed xl:right-56 md:right-20 lg:right-40 md:top-20 top-36 lg:top-20 bg-opacity-50 rounded-xl z-20">
+               {searchItem === "" ? (
+                  <div></div>
+               ) : (
+                  <ScrollArea className="flex flex-row w-[300px] lg:w-[700px] h-80 rounded-xl">
+                     {loading ? (
+                        <LoaderCircle className="animate-spin" />
+                     ) : (
+                        <div className="grid grid-flow-dense">
+                           {dataQuery.map(data => (
+                              <Card
+                                 key={data.id}
+                                 className="border-none flex w-full h-auto flex-row items-center bg-blue-700 p-0"
+                              >
+                                 <div className="flex flex-wrap gap-x-3">
+                                    {data.posterPath || data.profilePath ? (
+                                       <Image
+                                          className="w-20 p-2 rounded-xl"
+                                          alt=""
+                                          src={`https://image.tmdb.org/t/p/w154${
+                                             data.posterPath || data.profilePath
+                                          }`}
+                                          width={500}
+                                          height={500}
+                                       />
+                                    ) : (
+                                       <ImageIcon className="w-16 ml-2 p-2 h-20 bg-blue-900 text-blue-600" />
+                                    )}
+
+                                    <ul>
+                                       <li className="text-left text-blue-600 w-96 text-lg font-semibold mt-2">
+                                          {data.title || data.name}
+                                       </li>
+
+                                       <li className="text-left text-md text-blue-600 text-opacity-60">
+                                          {data.year ||
+                                             data.firstAirYear ||
+                                             data.knownForDepartment}
+                                       </li>
+
+                                       <div className="flex w-full gap-2 mt-2">
+                                          {Array.isArray(data.knownFor) &&
+                                             data.knownFor.map(
+                                                (
+                                                   person: any,
+                                                   index: number
+                                                ) => (
+                                                   <ul
+                                                      key={person.id}
+                                                      className="flex justify-center flex-row"
+                                                   >
+                                                      <li className="text-left text-md text-blue-600">
+                                                         {person.title ||
+                                                            person.name}
+                                                         {index <
+                                                         data.knownFor.length -
+                                                            1
+                                                            ? ","
+                                                            : " "}
+                                                      </li>
+                                                   </ul>
+                                                )
+                                             )}
+                                       </div>
+                                    </ul>
+
+                                    <Separator className="bg-blue-600 w-[700px] bg-opacity-60" />
+                                 </div>
+                              </Card>
+                           ))}
+                        </div>
+                     )}
+
+                     <ScrollBar orientation="vertical" />
+                  </ScrollArea>
+               )}
+            </div>
+            <section className="mt-10 flex flex-row justify-between items-center w-[1460px]">
+               <div className="flex flex-row gap-5 w-full">
+                  <p
+                     className={`text-3xl font-semibold ${
+                        contentType === "movie"
+                           ? "text-blue-600"
+                           : "text-blue-600, text-opacity-60"
+                     } cursor-pointer ${
+                        contentType === "movie"
+                           ? "hover:text-blue-600"
+                           : "text-blue-600"
+                     } hover:text-blue-600 transition-all`}
+                     onClick={() => {
+                        setContentType("movie");
+                     }}
+                  >
+                     Movies
+                  </p>
+                  <Separator
+                     className="bg-blue-700 w-0.5 h-auto"
+                     orientation="vertical"
+                  />
+                  <p
+                     className={`text-3xl font-semibold ${
+                        contentType === "tv"
+                           ? "text-blue-600"
+                           : "text-blue-600, text-opacity-60"
+                     } ${
+                        contentType === "tv"
+                           ? "hover:text-blue-600"
+                           : "text-blue-600"
+                     } hover:text-blue-600 cursor-pointer transition-all`}
+                     onClick={() => {
+                        setContentType("tv");
+                     }}
+                  >
+                     TV
+                  </p>
+               </div>
+
+               <Select onValueChange={handleFilterChange}>
+                  <SelectTrigger className="w-80 text-blue-600 bg-blue-700">
+                     <SelectValue placeholder="Discover" />
+                  </SelectTrigger>
+
+                  <SelectContent className="bg-blue-700 text-blue-600">
+                     <SelectItem
+                        className={`text-xl font-semibold ${
+                           filterList === "discover"
+                              ? "text-blue-600"
+                              : "text-blue-600, text-opacity-60"
+                        } ${
+                           filterList === "discover"
+                              ? "hover:text-blue-600"
+                              : "text-blue-600"
+                        }  cursor-pointer transition-all`}
+                        value="discover"
+                     >
+                        Discover
+                     </SelectItem>
+                     <SelectItem
+                        className={`text-xl font-semibold ${
+                           filterList === "popular"
+                              ? "text-blue-600"
+                              : "text-blue-600, text-opacity-60"
+                        } ${
+                           filterList === "popular"
+                              ? "hover:text-blue-600"
+                              : "text-blue-600"
+                        }  cursor-pointer transition-all`}
+                        value="popular"
+                     >
+                        Popular
+                     </SelectItem>
+                     <SelectItem value="nowPlaying">Now Playing</SelectItem>
+                     <SelectItem value="topRated">Top Rated</SelectItem>
+                     <SelectItem value="upcoming">Upcoming</SelectItem>
+                  </SelectContent>
+               </Select>
+            </section>
          </header>
 
-         <div className="fixed xl:right-56 md:right-20 lg:right-40 md:top-20 top-36 lg:top-20 bg-opacity-50 rounded-xl z-20">
-            {searchItem === "" ? (
-               <div></div>
-            ) : (
-               <ScrollArea className="flex flex-row w-[300px] lg:w-[700px] h-80 rounded-xl">
-                  {loading ? (
-                     <LoaderCircle className="animate-spin" />
-                  ) : (
-                     <div className="grid grid-flow-dense">
-                        {dataQuery.map(data => (
-                           <Card
-                              key={data.id}
-                              className="border-none flex w-full h-auto flex-row items-center bg-blue-700 p-0"
-                           >
-                              <div className="flex flex-wrap gap-x-3">
-                                 {data.posterPath || data.profilePath ? (
-                                    <Image
-                                       className="w-20 p-2 rounded-xl"
-                                       alt=""
-                                       src={`https://image.tmdb.org/t/p/w154${
-                                          data.posterPath || data.profilePath
-                                       }`}
-                                       width={500}
-                                       height={500}
-                                    />
-                                 ) : (
-                                    <ImageIcon className="w-16 ml-2 p-2 h-20 bg-blue-900 text-blue-600" />
-                                 )}
-
-                                 <ul>
-                                    <li className="text-left text-blue-600 w-96 text-lg font-semibold mt-2">
-                                       {data.title || data.name}
-                                    </li>
-
-                                    <li className="text-left text-md text-blue-600 text-opacity-60">
-                                       {data.year ||
-                                          data.firstAirYear ||
-                                          data.knownForDepartment}
-                                    </li>
-
-                                    <div className="flex w-full gap-2 mt-2">
-                                       {Array.isArray(data.knownFor) &&
-                                          data.knownFor.map(
-                                             (person: any, index: number) => (
-                                                <ul
-                                                   key={person.id}
-                                                   className="flex justify-center flex-row"
-                                                >
-                                                   <li className="text-left text-md text-blue-600">
-                                                      {person.title ||
-                                                         person.name}
-                                                      {index <
-                                                      data.knownFor.length - 1
-                                                         ? ","
-                                                         : " "}
-                                                   </li>
-                                                </ul>
-                                             )
-                                          )}
-                                    </div>
-                                 </ul>
-
-                                 <Separator className="bg-blue-600 w-[700px] bg-opacity-60" />
-                              </div>
-                           </Card>
-                        ))}
-                     </div>
-                  )}
-
-                  <ScrollBar orientation="vertical" />
-               </ScrollArea>
-            )}
-         </div>
-
-         <section className="mt-20">
-            <div className="flex flex-row gap-5 w-full">
-               <p
-                  className={`text-3xl font-semibold ${
-                     !clicked
-                        ? "text-blue-600"
-                        : "text-blue-600, text-opacity-60"
-                  } cursor-pointer ${
-                     !clicked ? "hover:text-blue-600" : "text-blue-600"
-                  } hover:text-blue-600 transition-all`}
-                  onClick={() => setClicked(false)}
-               >
-                  Movies
-               </p>
-
-               <p
-                  className={`text-3xl font-semibold ${
-                     clicked
-                        ? "text-blue-600"
-                        : "text-blue-600, text-opacity-60"
-                  } ${
-                     clicked ? "hover:text-blue-600" : "text-blue-600"
-                  } hover:text-blue-600 cursor-pointer transition-all`}
-                  onClick={() => handleShowClick()}
-               >
-                  TV
-               </p>
+         {filterList === "discover" ? (
+            <div>
+               {contentType === "movie" ? (
+                  <DiscoverMovies
+                     setLoading={setLoading}
+                     loading={loading}
+                     currentPage={currentPage}
+                     filterList={filterList}
+                     contentType={contentType}
+                  />
+               ) : (
+                  <DiscoverTV
+                     setLoading={setLoading}
+                     loading={loading}
+                     currentPage={currentPage}
+                     filterList={filterList}
+                     contentType={contentType}
+                  />
+               )}
             </div>
-
-            {clicked ? (
-               <Show
-                  setLoading={setLoading}
-                  loading={loading}
-                  currentPage={currentPage}
-               />
-            ) : (
-               <Movie
-                  setLoading={setLoading}
-                  loading={loading}
-                  currentPage={currentPage}
-               />
-            )}
-         </section>
+         ) : (
+            <div>
+               {contentType === "movie" ? <PopularMovies /> : <PopularTV />}
+            </div>
+         )}
 
          <footer className="flex flex-row justify-between items-center z-10 mt-[650px]">
             <p className="text-blue-600 absolute left-56 mt-8 text-opacity-60">

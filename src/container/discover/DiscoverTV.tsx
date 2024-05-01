@@ -1,6 +1,6 @@
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { key } from "./key";
+import { key } from "@/app/key";
 
 import {
    Carousel,
@@ -26,22 +26,30 @@ import {
    TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import Autoplay from "embla-carousel-autoplay";
-import CardLayout from "@/layout/CardLayout";
-import CarouselLayout from "@/layout/CarouselLayout";
 import { LoaderCircle } from "lucide-react";
-import Image from "next/image";
+import Autoplay from "embla-carousel-autoplay";
+import CardLayout from "@/components/layout/CardLayout";
+import CarouselItemLayout from "@/components/layout/CarouselItemLayout";
 import { ImageIcon } from "lucide-react";
+import Image from "next/image";
+import CarouselLayout from "@/components/layout/CarouselLayout";
 
 interface Props {
-   setLoading: Function;
    loading: boolean;
+   setLoading: Function;
    currentPage: number;
+   filterList: string;
+   contentType: string;
 }
 
-export default function Show({ setLoading, currentPage, loading }: Props) {
-   const [hovered, setHovered] = useState<number | false>(false);
-   const [showData, setShowData] = useState<
+export default function DiscoverMovies({
+   loading,
+   setLoading,
+   currentPage,
+   filterList,
+   contentType,
+}: Props) {
+   const [data, setData] = useState<
       {
          id: number;
          posterPath: string;
@@ -53,8 +61,7 @@ export default function Show({ setLoading, currentPage, loading }: Props) {
          overview: string;
       }[]
    >([]);
-
-   const [showSelected, setShowSelected] = useState<
+   const [selected, setSelected] = useState<
       | {
            id: number;
            posterPath: string;
@@ -69,30 +76,31 @@ export default function Show({ setLoading, currentPage, loading }: Props) {
       | false
    >(false);
 
-   const [dialogOpen, setDialogOpen] = useState(false);
+   const [hovered, setHovered] = useState<number | false>(false);
+   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
-   const getShowData = (pageNumber: number) => {
+   const getData = (pageNumber: number) => {
       try {
          axios
             .get(
-               `https://api.themoviedb.org/3/discover/tv?api_key=${key}&page=${pageNumber}`
+               `https://api.themoviedb.org/3/${filterList}/${contentType}?api_key=${key}&page=${pageNumber}`
             )
             .then(response => {
-               const data = response.data.results.map((show: any) => ({
-                  id: show.id,
-                  title: show.name,
-                  overview: show.overview,
-                  posterPath: show.poster_path,
-                  year: show.first_air_date.slice(0, 5),
-                  voteAverage: Number(show.vote_average.toFixed(1)),
-                  voteCount: show.vote_count,
-                  backdropPath: show.backdrop_path,
+               const results = response.data.results.map((data: any) => ({
+                  id: data.id,
+                  title: data.name,
+                  overview: data.overview,
+                  posterPath: data.poster_path,
+                  year: data.first_air_date.slice(0, 4),
+                  voteAverage: Number(data.vote_average.toFixed(1)),
+                  voteCount: data.vote_count,
+                  backdropPath: data.backdrop_path,
                }));
 
-               setShowData(data);
+               setData(results);
             });
       } catch (error) {
-         console.error("Error loading show data", error);
+         console.error("Error loading results", error);
       } finally {
          setTimeout(() => {
             setLoading(false);
@@ -100,10 +108,16 @@ export default function Show({ setLoading, currentPage, loading }: Props) {
       }
    };
 
-   const getShowCast = (id: number) => {
+   useEffect(() => {
+      getData(currentPage);
+   }, [currentPage]);
+
+   const getCast = (id: number) => {
       try {
          axios
-            .get(`https://api.themoviedb.org/3/tv/${id}/credits?api_key=${key}`)
+            .get(
+               `https://api.themoviedb.org/3/${contentType}/${id}/credits?api_key=${key}`
+            )
             .then(response => {
                const castData = response.data.cast.map((actor: any) => ({
                   id: actor.id,
@@ -117,9 +131,9 @@ export default function Show({ setLoading, currentPage, loading }: Props) {
                   (a: any, b: any) => b.popularity - a.popularity
                );
 
-               const popularActors = sortPopularity.slice(0, 4);
+               const popularActors = sortPopularity.slice(0, 5);
 
-               setShowSelected(prevData => {
+               setSelected(prevData => {
                   if (prevData === false) {
                      return prevData;
                   } else {
@@ -128,126 +142,105 @@ export default function Show({ setLoading, currentPage, loading }: Props) {
                });
             });
       } catch (error) {
-         console.error("Error loading show details", error);
+         console.error("Error loading movie details", error);
       }
    };
-
-   useEffect(() => {
-      getShowData(currentPage);
-   }, [currentPage]);
 
    const handleMouseEnter = (id: number) => {
       setHovered(id);
    };
 
-   const handleShowSelected = (id: number) => {
-      const showFound = showData.find(show => show.id === id);
+   const handleSelected = (id: number) => {
+      const resultFound = data.find(result => result.id === id);
 
-      if (showFound) {
-         getShowCast(id);
-         setShowSelected(showFound);
+      if (resultFound) {
+         getCast(id);
+         setSelected(resultFound);
          setDialogOpen(true);
       }
    };
 
+   const handleOpenChange = () => {
+      setDialogOpen(!dialogOpen);
+   };
+
    return (
-      <section className="flex justify-center min-w-screen min-h-screen">
-         <div className="bg-gradient-to-t from-blue-800 from-80% to-transparent w-full h-[150vh] mt-[300px] absolute z-10"></div>
-
-         <div className="bg-gradient-to-b from-blue-800 from-5% to-transparent w-full h-[100px] absolute z-10"></div>
-
-         <header className="lg:flex hidden">
-            {loading ? (
-               <div className="flex justify-center items-center w-[250px] md:w-[250px] xl:w-[1400px] xl:h-[500px]">
-                  <LoaderCircle className="w-[250px] md:w-[250px] xl:w-[1400px] h-4 xl:h-[100px] text-blue-600 animate-spin" />
-               </div>
-            ) : (
-               <Carousel
-                  plugins={[
-                     Autoplay({
-                        delay: 4000,
-                     }),
-                  ]}
-                  opts={{ align: "start", loop: true }}
-                  className="lg:w-[900px] xl:w-[1000px] 2xl:w-[1460px] h-[550px] rounded-xl bg-blue-700 border border-blue-700 bg-opacity-10"
-               >
-                  <CarouselContent className="xl:w-[1015px] 2xl:w-[1500px]">
-                     {showData.map(show => (
-                        <CarouselLayout
-                           key={show.id}
-                           title={show.title}
-                           alt={show.title}
-                           backdropPath={show.backdropPath}
-                        />
-                     ))}
-                  </CarouselContent>
-
-                  <CarouselPrevious className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20" />
-
-                  <CarouselNext className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20" />
-               </Carousel>
-            )}
-         </header>
+      <section className="flex justify-center min-w-screen min-h-screen mt-40">
+         <CarouselLayout
+            loading={loading}
+            dialogOpen={dialogOpen}
+            setDialogOpen={handleOpenChange}
+         >
+            {data.map(movie => (
+               <CarouselItemLayout
+                  key={movie.id}
+                  title={movie.title}
+                  alt={movie.title}
+                  backdropPath={movie.backdropPath}
+                  onClick={() => handleSelected(movie.id)}
+               />
+            ))}
+         </CarouselLayout>
 
          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
                <div className="flex flex-wrap mt-24 lg:mt-[500px] justify-center items-center min-h-20 flex-row w-full 2xl:w-[1500px] gap-y-32 gap-x-5 xl:gap-y-5 z-10 absolute">
-                  {showData.map(show => (
-                     <div key={show.id}>
+                  {data.map(movie => (
+                     <div key={movie.id}>
                         <CardLayout
-                           onClick={() => handleShowSelected(show.id)}
-                           onMouseEnter={() => handleMouseEnter(show.id)}
+                           onClick={() => handleSelected(movie.id)}
+                           onMouseEnter={() => handleMouseEnter(movie.id)}
                            onMouseLeave={() => setHovered(false)}
                            loading={loading}
                            headerStyle={{
-                              display: hovered === show.id ? "flex" : "none",
+                              display: hovered === movie.id ? "flex" : "none",
                            }}
-                           year={show.year}
-                           voteAverage={show.voteAverage}
-                           voteCount={show.voteCount}
-                           alt={show.title}
-                           backdropPath={show.backdropPath}
-                           title={show.title}
+                           year={movie.year}
+                           voteAverage={movie.voteAverage}
+                           voteCount={movie.voteCount}
+                           alt={movie.title}
+                           backdropPath={movie.backdropPath}
+                           title={movie.title}
                         />
                      </div>
                   ))}
                </div>
             </DialogTrigger>
 
-            {showSelected && (
+            {selected && (
                <DialogContent className="grid grid-rows-3 grid-flow-col gap-10 sm:max-w-[1000px] max-h-[500px] border-none text-blue-600 rounded-xl">
                   <Image
                      className="w-72 row-span-3"
-                     alt={showSelected.title}
-                     src={`https://image.tmdb.org/t/p/w500${showSelected.posterPath}`}
+                     alt={selected.title}
+                     src={`https://image.tmdb.org/t/p/w500${selected.posterPath}`}
                      width={500}
                      height={500}
                   />
                   <div className="bg-blue-700 absolute w-10 h-14 left-5 flex justify-center">
                      <p className="px-10 py-6 text-lg">
-                        {showSelected.voteAverage}
+                        {selected.voteAverage}
                      </p>
                   </div>
                   <DialogHeader className="flex flex-col gap-5">
                      <DialogTitle className="text-blue-600 font-bold text-6xl flex flex-row gap-5 items-center">
                         <p>
-                           {showSelected.title}
-                           <p className="text-xl mt-2">{showSelected.year}</p>
+                           {selected.title}
+                           <p className="text-xl mt-2">{selected.year}</p>
                         </p>
                      </DialogTitle>
 
                      <DialogDescription className="text-blue-600 text-opacity-60 text-md">
-                        {showSelected.overview}
+                        {selected.overview}
                      </DialogDescription>
                      <footer className="flex flex-row items-center">
-                        {showSelected.cast?.map(actor => (
+                        {selected.cast?.map(actor => (
                            <TooltipProvider delayDuration={100}>
-                              <Tooltip key={actor.id} className="">
+                              <Tooltip key={actor.id}>
                                  <TooltipTrigger asChild>
                                     {actor.profilePath ? (
                                        <Image
-                                          className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all"
-                                          alt=""
+                                          className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-40"
+                                          alt={actor.name}
                                           src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
                                           width={500}
                                           height={500}
