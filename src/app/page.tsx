@@ -8,7 +8,7 @@ import {
    CardTitle,
    CardContent,
 } from "@/components/ui/card";
-import { useState, useEffect, forwardRef } from "react";
+import { useState, useEffect, forwardRef, ChangeEvent } from "react";
 import axios from "axios";
 import {
    Carousel,
@@ -65,6 +65,7 @@ import DiscoverMovies from "@/container/discover/DiscoverMovies";
 import DiscoverTV from "@/container/discover/DiscoverTV";
 import TopRatedMovies from "@/container/top-rated/TopRatedMovies";
 import TopRatedTV from "@/container/top-rated/TopRatedTV";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
    const [dataQuery, setDataQuery] = useState<
@@ -93,6 +94,8 @@ export default function Home() {
    const [clicked, setClicked] = useState(false);
    const [filterList, setFilterList] = useState("discover");
    const [contentType, setContentType] = useState("movie");
+
+   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
 
    const getQuery = (title: string) => {
       axios
@@ -144,8 +147,6 @@ export default function Home() {
       getQuery(searchItem);
    }, [searchItem]);
 
-
-
    const streamingLogos = [
       {
          id: 0,
@@ -174,22 +175,43 @@ export default function Home() {
       },
    ];
 
-   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchItem(event.target.value);
+   const getGenres = () => {
+      try {
+         axios
+            .get(`https://api.themoviedb.org/3/genre/movie/list?api_key=${key}`)
+            .then(response => {
+               const data = response.data.genres.map((genre: any) => ({
+                  id: genre.id,
+                  name: genre.name,
+               }));
+               setGenres(data);
+            });
+      } catch (error) {
+         console.error("Error getting genres" + error);
+      }
    };
 
-   // const handleMouseEnter = (id: number) => {
-   //    setHovered(id);
-   // };
+   useEffect(() => {
+      getGenres();
+   }, []);
 
-   const setContentTypeAndFilters = (content: string, filters: string[]) => {
-      setContentType(content);
-      filters.forEach(filter => setFilterList(filter));
+   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchItem(event.target.value);
    };
 
    const handleFilterChange = (filter: string) => {
       setFilterList(filter);
    };
+
+   const handleGenreClick = (genreId: number) => {
+      setSelectedGenres([...selectedGenres, genreId]);
+   };
+
+   const [voteFiltered, setVoteFiltered] = useState<number>(0)
+
+   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+      setVoteFiltered(parseInt(event.target.value));
+   }
 
    return (
       <main className="flex min-w-screen min-h-screen flex-col items-center justify-between p-10 bg-blue-800">
@@ -369,26 +391,35 @@ export default function Home() {
                   </p>
                </div>
 
-               {/* <Popover>
-                  <PopoverTrigger>Genres</PopoverTrigger>
-
+               <Popover>
+                  <PopoverTrigger className="text-blue-600">
+                     Genres
+                  </PopoverTrigger>
+                  
                   <PopoverContent className="bg-blue-700 w-[40rem] h-60 grid grid-rows-4 grid-flow-col border-none rounded-xl">
                      {genres.map(genre => (
                         <div
                            className="flex flex-row items-center gap-2"
                            key={genre.id}
                         >
-                              <Checkbox className="text-blue-900 bg-blue-600" id={genre.name} />
-                              <Label
-                                 className=" text-blue-600  border-none"
-                                 htmlFor={genre.name}
-                              >
-                                 {genre.name}
-                              </Label>
+                           <Checkbox
+                           onClick={() => handleGenreClick(genre.id)}
+                              className="text-blue-900 bg-blue-600"
+                              id={genre.name}
+                              checked={selectedGenres.includes(genre.id)}
+                           />
+                           <Label
+                              className=" text-blue-600  border-none"
+                              htmlFor={genre.name}
+                           >
+                              {genre.name}
+                           </Label>
                         </div>
                      ))}
+                     <input onChange={handleChange} type="range" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" min="0" max="10" value={voteFiltered} />
+                     <p className="text-blue-600 text-xl">{voteFiltered}</p>
                   </PopoverContent>
-               </Popover> */}
+               </Popover>
 
                <Select onValueChange={handleFilterChange}>
                   <SelectTrigger className="w-80 text-blue-600 bg-blue-700 border-none text-xl">
@@ -438,6 +469,8 @@ export default function Home() {
                   currentPage={currentPage}
                   filterList={filterList}
                   contentType={contentType}
+                  selectedGenres={selectedGenres}
+                  voteFiltered={voteFiltered}
                />
             ) : (
                <DiscoverTV
@@ -446,6 +479,8 @@ export default function Home() {
                   currentPage={currentPage}
                   filterList={filterList}
                   contentType={contentType}
+                  selectedGenres={selectedGenres}
+                  voteFiltered={voteFiltered}
                />
             ))}
 

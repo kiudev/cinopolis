@@ -40,6 +40,8 @@ interface Props {
    currentPage: number;
    filterList: string;
    contentType: string;
+   selectedGenres: number[];
+   voteFiltered: number;
 }
 
 export default function DiscoverMovies({
@@ -48,6 +50,8 @@ export default function DiscoverMovies({
    currentPage,
    filterList,
    contentType,
+   selectedGenres,
+   voteFiltered,
 }: Props) {
    const [data, setData] = useState<
       {
@@ -59,6 +63,7 @@ export default function DiscoverMovies({
          voteCount: number;
          backdropPath: string;
          overview: string;
+         genreId: number[];
       }[]
    >([]);
    const [selected, setSelected] = useState<
@@ -76,6 +81,8 @@ export default function DiscoverMovies({
       | false
    >(false);
 
+   const [backdrop, setBackdrop] = useState<{ filePath: string }[]>([]);
+
    const [hovered, setHovered] = useState<number | false>(false);
    const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
@@ -83,7 +90,7 @@ export default function DiscoverMovies({
       try {
          axios
             .get(
-               `https://api.themoviedb.org/3/${filterList}/${contentType}?api_key=${key}&page=${pageNumber}`
+               `https://api.themoviedb.org/3/${filterList}/${contentType}?api_key=${key}&page=${pageNumber}&with_genres=${selectedGenres}&vote_average.gte=${voteFiltered}&sort_by=vote_count.desc`
             )
             .then(response => {
                const results = response.data.results.map((data: any) => ({
@@ -95,6 +102,7 @@ export default function DiscoverMovies({
                   voteAverage: Number(data.vote_average.toFixed(1)),
                   voteCount: data.vote_count,
                   backdropPath: data.backdrop_path,
+                  genreId: data.genre_ids,
                }));
 
                setData(results);
@@ -146,6 +154,24 @@ export default function DiscoverMovies({
       }
    };
 
+   const getImages = (id: number) => {
+      try {
+         axios
+            .get(
+               `https://api.themoviedb.org/3/${contentType}/${id}/images?api_key=${key}`
+            )
+            .then(response => {
+               const images = response.data.backdrops.map((backdrop: any) => ({
+                  filePath: backdrop.file_path,
+               }));
+
+               setBackdrop(images);
+            });
+      } catch (error) {
+         console.error("Error loading images", error);
+      }
+   };
+
    const handleMouseEnter = (id: number) => {
       setHovered(id);
    };
@@ -155,6 +181,7 @@ export default function DiscoverMovies({
 
       if (resultFound) {
          getCast(id);
+         getImages(id);
          setSelected(resultFound);
          setDialogOpen(true);
       }
@@ -208,7 +235,7 @@ export default function DiscoverMovies({
             </DialogTrigger>
 
             {selected && (
-               <DialogContent className="grid grid-rows-3 grid-flow-col gap-10 sm:max-w-[1000px] max-h-[500px] border-none text-blue-600 rounded-xl">
+               <DialogContent className="grid grid-rows-3 grid-flow-col gap-10 sm:max-w-[1000px] max-h-[700px] border-none text-blue-600 rounded-xl">
                   <Image
                      className="w-72 row-span-3"
                      alt={selected.title}
@@ -265,6 +292,22 @@ export default function DiscoverMovies({
                            </TooltipProvider>
                         ))}
                      </footer>
+                        <Carousel plugins={[
+                        Autoplay({
+                           delay: 2000,
+                        }),
+                     ]}
+                     opts={{ align: "start", loop: true }} className="w-[30rem] m-auto">
+                           <CarouselContent>
+                              {backdrop.map((image, index) => (
+                                 <CarouselItem key={index}>
+                                    <Image src={`https://image.tmdb.org/t/p/original/${image.filePath}`} alt="" width={500} height={500} />
+                                 </CarouselItem>
+                              ))}
+                           </CarouselContent>
+                           <CarouselPrevious />
+                           <CarouselNext />
+                        </Carousel>
                   </DialogHeader>
                </DialogContent>
             )}
