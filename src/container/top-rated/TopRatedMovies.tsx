@@ -26,15 +26,6 @@ import {
    TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import {
-   Popover,
-   PopoverContent,
-   PopoverTrigger,
-} from "@/components/ui/popover";
-
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-
 import { LoaderCircle } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 import CardLayout from "@/components/layout/CardLayout";
@@ -51,7 +42,7 @@ interface Props {
    contentType: string;
 }
 
-export default function DiscoverMovies({
+export default function TopRatedMovies({
    loading,
    setLoading,
    currentPage,
@@ -68,7 +59,6 @@ export default function DiscoverMovies({
          voteCount: number;
          backdropPath: string;
          overview: string;
-         genreId: number[];
       }[]
    >([]);
    const [selected, setSelected] = useState<
@@ -88,14 +78,12 @@ export default function DiscoverMovies({
 
    const [hovered, setHovered] = useState<number | false>(false);
    const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-   const [genres, setGenres] = useState<{ id: number; name: string }[]>([]);
-   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
 
    const getData = (pageNumber: number) => {
       try {
          axios
             .get(
-               `https://api.themoviedb.org/3/${filterList}/${contentType}?api_key=${key}&page=${pageNumber}`
+               `https://api.themoviedb.org/3/${contentType}/${filterList}?api_key=${key}&page=${pageNumber}`
             )
             .then(response => {
                const results = response.data.results.map((data: any) => ({
@@ -107,7 +95,6 @@ export default function DiscoverMovies({
                   voteAverage: Number(data.vote_average.toFixed(1)),
                   voteCount: data.vote_count,
                   backdropPath: data.backdrop_path,
-                  genreId: data.genre_ids,
                }));
 
                setData(results);
@@ -159,26 +146,6 @@ export default function DiscoverMovies({
       }
    };
 
-   const getGenres = () => {
-      try {
-         axios
-            .get(`https://api.themoviedb.org/3/genre/movie/list?api_key=${key}`)
-            .then(response => {
-               const data = response.data.genres.map((genre: any) => ({
-                  id: genre.id,
-                  name: genre.name,
-               }));
-               setGenres(data);
-            });
-      } catch (error) {
-         console.error("Error getting genres" + error);
-      }
-   };
-
-   useEffect(() => {
-      getGenres();
-   }, []);
-
    const handleMouseEnter = (id: number) => {
       setHovered(id);
    };
@@ -197,49 +164,8 @@ export default function DiscoverMovies({
       setDialogOpen(!dialogOpen);
    };
 
-   // const handleGenreClick = (id: number) => {
-   //    const getId = data.forEach(movie => {
-   //       if (movie.genreId) {
-   //          movie.genreId.find(genreId => genreId === id);
-   //       }
-   //    })
-   // }
-
-   const handleGenreClick = (genreId: number) => {
-      if (selectedGenres.includes(genreId)) {
-        setSelectedGenres(selectedGenres.filter((g) => g !== genreId));
-      } else {
-        setSelectedGenres([...selectedGenres, genreId]);
-      }
-   };
-
    return (
       <section className="flex justify-center min-w-screen min-h-screen mt-40">
-         <Popover>
-            <PopoverTrigger className="absolute z-20 -mt-20 text-blue-600">Genres</PopoverTrigger>
-
-            <PopoverContent className="bg-blue-700 w-[40rem] h-60 grid grid-rows-4 grid-flow-col border-none rounded-xl absolute z-20">
-               {genres.map(genre => (
-                  <div
-                     className="flex flex-row items-center gap-2"
-                     key={genre.id}
-                  >
-                     <Checkbox
-                     onClick={() => handleGenreClick(genre.id)}
-                        className="text-blue-900 bg-blue-600"
-                        id={genre.name}
-                     />
-                     <Label
-                        className=" text-blue-600  border-none"
-                        htmlFor={genre.name}
-                     >
-                        {genre.name}
-                     </Label>
-                  </div>
-               ))}
-            </PopoverContent>
-         </Popover>
-
          <CarouselLayout
             loading={loading}
             dialogOpen={dialogOpen}

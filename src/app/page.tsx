@@ -43,6 +43,15 @@ import {
    SelectValue,
 } from "@/components/ui/select";
 
+import {
+   Popover,
+   PopoverContent,
+   PopoverTrigger,
+} from "@/components/ui/popover";
+
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { NavigationMenuLink } from "@radix-ui/react-navigation-menu";
 import { Input } from "@/components/ui/input";
@@ -54,8 +63,8 @@ import { Image as ImageIcon } from "lucide-react";
 
 import DiscoverMovies from "@/container/discover/DiscoverMovies";
 import DiscoverTV from "@/container/discover/DiscoverTV";
-import PopularMovies from "@/container/popular/PopularMovies";
-import PopularTV from "@/container/popular/PopularTV";
+import TopRatedMovies from "@/container/top-rated/TopRatedMovies";
+import TopRatedTV from "@/container/top-rated/TopRatedTV";
 
 export default function Home() {
    const [dataQuery, setDataQuery] = useState<
@@ -74,6 +83,8 @@ export default function Home() {
          }[];
       }[]
    >([]);
+
+   const [genres, setGenres] = useState<{ id: number; name: string }[]>([]);
 
    const [loading, setLoading] = useState(true);
    const [currentPage, setCurrentPage] = useState(1);
@@ -133,13 +144,7 @@ export default function Home() {
       getQuery(searchItem);
    }, [searchItem]);
 
-   const handleShowClick = () => {
-      setClicked(true);
 
-      setTimeout(() => {
-         setLoading(false);
-      }, 1000);
-   };
 
    const streamingLogos = [
       {
@@ -177,19 +182,13 @@ export default function Home() {
    //    setHovered(id);
    // };
 
+   const setContentTypeAndFilters = (content: string, filters: string[]) => {
+      setContentType(content);
+      filters.forEach(filter => setFilterList(filter));
+   };
+
    const handleFilterChange = (filter: string) => {
       setFilterList(filter);
-      if (filterList === "discover") {
-         setFilterList("discover");
-         setContentType("movie");
-         if (contentType === "movie") {
-            setFilterList("popular");
-            setContentType("movie");
-         } else {
-            setFilterList("popular");
-            setContentType("tv");
-         }
-      }
    };
 
    return (
@@ -370,8 +369,29 @@ export default function Home() {
                   </p>
                </div>
 
+               {/* <Popover>
+                  <PopoverTrigger>Genres</PopoverTrigger>
+
+                  <PopoverContent className="bg-blue-700 w-[40rem] h-60 grid grid-rows-4 grid-flow-col border-none rounded-xl">
+                     {genres.map(genre => (
+                        <div
+                           className="flex flex-row items-center gap-2"
+                           key={genre.id}
+                        >
+                              <Checkbox className="text-blue-900 bg-blue-600" id={genre.name} />
+                              <Label
+                                 className=" text-blue-600  border-none"
+                                 htmlFor={genre.name}
+                              >
+                                 {genre.name}
+                              </Label>
+                        </div>
+                     ))}
+                  </PopoverContent>
+               </Popover> */}
+
                <Select onValueChange={handleFilterChange}>
-                  <SelectTrigger className="w-80 text-blue-600 bg-blue-700">
+                  <SelectTrigger className="w-80 text-blue-600 bg-blue-700 border-none text-xl">
                      <SelectValue placeholder="Discover" />
                   </SelectTrigger>
 
@@ -390,53 +410,63 @@ export default function Home() {
                      >
                         Discover
                      </SelectItem>
+
                      <SelectItem
                         className={`text-xl font-semibold ${
-                           filterList === "popular"
+                           filterList === "now_playing"
                               ? "text-blue-600"
                               : "text-blue-600, text-opacity-60"
                         } ${
-                           filterList === "popular"
+                           filterList === "now_playing"
                               ? "hover:text-blue-600"
                               : "text-blue-600"
                         }  cursor-pointer transition-all`}
-                        value="popular"
+                        value="top_rated"
                      >
-                        Popular
+                        Top Rated
                      </SelectItem>
-                     <SelectItem value="nowPlaying">Now Playing</SelectItem>
-                     <SelectItem value="topRated">Top Rated</SelectItem>
-                     <SelectItem value="upcoming">Upcoming</SelectItem>
                   </SelectContent>
                </Select>
             </section>
          </header>
 
-         {filterList === "discover" ? (
-            <div>
-               {contentType === "movie" ? (
-                  <DiscoverMovies
-                     setLoading={setLoading}
-                     loading={loading}
-                     currentPage={currentPage}
-                     filterList={filterList}
-                     contentType={contentType}
-                  />
-               ) : (
-                  <DiscoverTV
-                     setLoading={setLoading}
-                     loading={loading}
-                     currentPage={currentPage}
-                     filterList={filterList}
-                     contentType={contentType}
-                  />
-               )}
-            </div>
-         ) : (
-            <div>
-               {contentType === "movie" ? <PopularMovies /> : <PopularTV />}
-            </div>
-         )}
+         {filterList === "discover" &&
+            (contentType === "movie" ? (
+               <DiscoverMovies
+                  setLoading={setLoading}
+                  loading={loading}
+                  currentPage={currentPage}
+                  filterList={filterList}
+                  contentType={contentType}
+               />
+            ) : (
+               <DiscoverTV
+                  setLoading={setLoading}
+                  loading={loading}
+                  currentPage={currentPage}
+                  filterList={filterList}
+                  contentType={contentType}
+               />
+            ))}
+
+         {filterList === "top_rated" &&
+            (contentType === "movie" ? (
+               <TopRatedMovies
+                  setLoading={setLoading}
+                  loading={loading}
+                  currentPage={currentPage}
+                  filterList={filterList}
+                  contentType={contentType}
+               />
+            ) : (
+               <TopRatedTV
+                  setLoading={setLoading}
+                  loading={loading}
+                  currentPage={currentPage}
+                  filterList={filterList}
+                  contentType={contentType}
+               />
+            ))}
 
          <footer className="flex flex-row justify-between items-center z-10 mt-[650px]">
             <p className="text-blue-600 absolute left-56 mt-8 text-opacity-60">
