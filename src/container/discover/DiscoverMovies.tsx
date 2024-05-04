@@ -32,16 +32,31 @@ import {
    PopoverTrigger,
 } from "@/components/ui/popover";
 
+import {
+   Sheet,
+   SheetContent,
+   SheetDescription,
+   SheetHeader,
+   SheetTitle,
+   SheetTrigger,
+} from "@/components/ui/sheet";
+
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { LoaderCircle } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 import CardLayout from "@/components/layout/CardLayout";
 import CarouselItemLayout from "@/components/layout/CarouselItemLayout";
 import { ImageIcon } from "lucide-react";
 import Image from "next/image";
 import CarouselLayout from "@/components/layout/CarouselLayout";
+import { Button } from "@/components/ui/button";
+import {
+   SlidersHorizontal,
+   ArrowUpNarrowWide,
+   ArrowDownWideNarrow,
+} from "lucide-react";
+import { ChangeEvent } from "react";
 
 interface Props {
    loading: boolean;
@@ -49,8 +64,6 @@ interface Props {
    currentPage: number;
    filterList: string;
    contentType: string;
-   selectedGenres: number[];
-   voteFiltered: number;
 }
 
 export default function DiscoverMovies({
@@ -59,8 +72,6 @@ export default function DiscoverMovies({
    currentPage,
    filterList,
    contentType,
-   selectedGenres,
-   voteFiltered
 }: Props) {
    const [data, setData] = useState<
       {
@@ -92,12 +103,19 @@ export default function DiscoverMovies({
 
    const [hovered, setHovered] = useState<number | false>(false);
    const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+   const [genres, setGenres] = useState<{ id: number; name: string }[]>([]);
+   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+   const [voteAvg, setVoteAvg] = useState<number>(0);
+   const [voteCount, setVoteCount] = useState<string>("");
+   const [providers, setProviders] = useState<
+      { id: number; logo: string; name: string }[]
+   >([]);
 
    const getData = (pageNumber: number) => {
       try {
          axios
             .get(
-               `https://api.themoviedb.org/3/${filterList}/${contentType}?api_key=${key}&page=${pageNumber}&with_genres=${selectedGenres}&vote_average.gte=${voteFiltered}&sort_by=vote_count.desc`
+               `https://api.themoviedb.org/3/${filterList}/${contentType}?api_key=${key}&page=${pageNumber}&with_genres=${selectedGenres}&vote_average.gte=${voteAvg}&sort_by=${voteCount}`
             )
             .then(response => {
                const results = response.data.results.map((data: any) => ({
@@ -111,7 +129,7 @@ export default function DiscoverMovies({
                   backdropPath: data.backdrop_path,
                   genreId: data.genre_ids,
                }));
-
+               console.log(voteCount);
                setData(results);
             });
       } catch (error) {
@@ -125,7 +143,7 @@ export default function DiscoverMovies({
 
    useEffect(() => {
       getData(currentPage);
-   }, [currentPage]);
+   }, [currentPage, selectedGenres, voteAvg, voteCount]);
 
    const getCast = (id: number) => {
       try {
@@ -179,8 +197,196 @@ export default function DiscoverMovies({
       setDialogOpen(!dialogOpen);
    };
 
+   const getGenres = () => {
+      try {
+         axios
+            .get(`https://api.themoviedb.org/3/genre/movie/list?api_key=${key}`)
+            .then(response => {
+               const data = response.data.genres.map((genre: any) => ({
+                  id: genre.id,
+                  name: genre.name,
+               }));
+               setGenres(data);
+            });
+      } catch (error) {
+         console.error("Error getting genres" + error);
+      }
+   };
+
+   useEffect(() => {
+      getGenres();
+   }, []);
+
+   const handleGenreClick = (genreId: number) => {
+      if (selectedGenres.includes(genreId)) {
+         setSelectedGenres(selectedGenres.filter(g => g !== genreId));
+      } else {
+         setSelectedGenres([...selectedGenres, genreId]);
+      }
+   };
+
+   const handleVoteAvg = (event: ChangeEvent<HTMLInputElement>) => {
+      setLoading(true);
+      setVoteAvg(parseInt(event.target.value));
+   };
+
+   const handleVoteCount = (value: string) => {
+      setLoading(true);
+      setVoteCount(value);
+   };
+
+   const getProviders = () => {
+      try {
+         axios
+            .get(
+               `https://api.themoviedb.org/3/watch/providers/movie?api_key=${key}`
+            )
+            .then(response => {
+               const data = response.data.results.map((providers: any) => ({
+                  id: providers.provider_id,
+                  logo: providers.logo_path,
+                  name: providers.provider_name,
+               }));
+               // const filterProviders = data.filter((p: any) =>
+               //    [
+               //       "Netflix",
+               //       "HBO Max",
+               //       "Amazon Prime Video",
+               //       "Apple TV",
+               //    ].includes(p.name)
+               // );
+               setProviders(data);
+            });
+      } catch (error) {
+         console.error("Error getting providers " + error);
+      }
+   };
+
+   useEffect(() => {
+      getProviders();
+   }, []);
+
    return (
-      <section className="flex justify-center min-w-screen min-h-screen mt-40">
+      <section className="flex justify-center min-w-screen min-h-screen mt-20">
+         <nav className="z-20 -mt-[95px] fixed flex flex-row items-center gap-5">
+            <Sheet>
+               <SheetTrigger
+                  className={`text-3xl font-semibold ${
+                     contentType === "movie"
+                        ? "text-blue-600"
+                        : "text-blue-600, text-opacity-60"
+                  } cursor-pointer ${
+                     contentType === "movie"
+                        ? "hover:text-blue-600"
+                        : "text-blue-600"
+                  } hover:text-blue-600 transition-all `}
+               >
+                  <SlidersHorizontal className="w-10 h-10" />
+               </SheetTrigger>
+               <SheetContent
+                  side="bottom"
+                  className="bg-blue-800 border-none flex flex-row items-center justify-left"
+               >
+                  <div className="flex flex-row w-full h-[210px] gap-5">
+                     <SheetHeader className="text-blue-600">
+                        <SheetTitle>Genres</SheetTitle>
+                        <SheetDescription className="">
+                           <div className="grid grid-cols-3">
+                              {genres.map(genre => (
+                                 <div
+                                    className="flex flex-row items-center gap-3 py-1"
+                                    key={genre.id}
+                                 >
+                                    <Checkbox
+                                       onClick={() =>
+                                          handleGenreClick(genre.id)
+                                       }
+                                       className="text-blue-900 bg-blue-600"
+                                       id={genre.name}
+                                       checked={selectedGenres.includes(
+                                          genre.id
+                                       )}
+                                    />
+                                    <Label
+                                       className=" text-blue-600  border-none"
+                                       htmlFor={genre.name}
+                                    >
+                                       {genre.name}
+                                    </Label>
+                                 </div>
+                              ))}
+                           </div>
+                        </SheetDescription>
+                     </SheetHeader>
+                     <div className="flex flex-col gap-5 w-72">
+                        <SheetHeader className=" text-blue-600">
+                           <SheetTitle>Vote Rating</SheetTitle>
+                           <SheetDescription className="flex flex-row items-center gap-5 bg-blue-600 px-3 py-1 rounded-xl">
+                              <p className="text-blue-700 text-xl">{voteAvg}</p>
+                              <input
+                                 onChange={handleVoteAvg}
+                                 type="range"
+                                 className="w-full h-2 bg-blue-700 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                 min="0"
+                                 max="10"
+                                 value={voteAvg}
+                              />
+                              <p className="text-blue-700 text-xl">10</p>
+                           </SheetDescription>
+                        </SheetHeader>
+                        <SheetHeader className=" text-blue-600">
+                           <SheetTitle>Vote Count</SheetTitle>
+                           <SheetDescription className="flex flex-row justify-evenly items-center bg-blue-600 px-3 py-1 rounded-xl">
+                              <Button
+                                 onClick={() =>
+                                    handleVoteCount("vote_count.asc")
+                                 }
+                                 className={`bg-blue-700 ${
+                                    voteCount === "vote_count.asc"
+                                       ? "bg-blue-700 bg-opacity-60 hover:bg-blue-700 hover:bg-opacity-100"
+                                       : "bg-blue-700"
+                                 }`}
+                              >
+                                 <ArrowUpNarrowWide />
+                              </Button>
+                              <Button
+                                 onClick={() =>
+                                    handleVoteCount("vote_count.desc")
+                                 }
+                                 className={`bg-blue-700 ${
+                                    voteCount === "vote_count.desc"
+                                       ? "bg-blue-700 bg-opacity-60 hover:bg-blue-700 hover:bg-opacity-100"
+                                       : "bg-blue-700"
+                                 }`}
+                              >
+                                 <ArrowDownWideNarrow />
+                              </Button>
+                           </SheetDescription>
+                        </SheetHeader>
+                     </div>
+                  </div>
+               </SheetContent>
+            </Sheet>
+
+            <Carousel opts={{slidesToScroll: 3}} className="flex flex-row items-center justify-center w-[600px]">
+               <CarouselContent className="">
+                  {providers.map(provider => (
+                     <CarouselItem className="basis-1/8" key={provider.id}>
+                        <Image
+                           className="w-14 rounded-xl"
+                           alt={provider.name}
+                           src={`https://image.tmdb.org/t/p/w154${provider.logo}`}
+                           width={100}
+                           height={100}
+                        />
+                     </CarouselItem>
+                  ))}
+               </CarouselContent>
+                  <CarouselPrevious className="ml-5" />
+                  <CarouselNext className="mr-5" />
+            </Carousel>
+         </nav>
+
          <CarouselLayout
             loading={loading}
             dialogOpen={dialogOpen}

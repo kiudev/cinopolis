@@ -8,7 +8,13 @@ import {
    CardTitle,
    CardContent,
 } from "@/components/ui/card";
-import { useState, useEffect, forwardRef, ChangeEvent } from "react";
+import {
+   useState,
+   useEffect,
+   forwardRef,
+   ChangeEvent,
+   MouseEventHandler,
+} from "react";
 import axios from "axios";
 import {
    Carousel,
@@ -48,6 +54,15 @@ import {
    PopoverContent,
    PopoverTrigger,
 } from "@/components/ui/popover";
+
+import {
+   Sheet,
+   SheetContent,
+   SheetDescription,
+   SheetHeader,
+   SheetTitle,
+   SheetTrigger,
+} from "@/components/ui/sheet";
 
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -94,8 +109,6 @@ export default function Home() {
    const [clicked, setClicked] = useState(false);
    const [filterList, setFilterList] = useState("discover");
    const [contentType, setContentType] = useState("movie");
-
-   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
 
    const getQuery = (title: string) => {
       axios
@@ -147,54 +160,6 @@ export default function Home() {
       getQuery(searchItem);
    }, [searchItem]);
 
-   const streamingLogos = [
-      {
-         id: 0,
-         name: "Netflix",
-         image: "/netflix.svg",
-         link: "Top 10 Netflix",
-         new: "Newest",
-      },
-      {
-         id: 1,
-         name: "HBO Max",
-         image: "/hbo.svg",
-         link: "Top 10 HBO",
-      },
-      {
-         id: 2,
-         name: "Disney Plus",
-         image: "/disney.svg",
-         link: "Top 10 Disney",
-      },
-      {
-         id: 3,
-         name: "Amazon Prime Video",
-         image: "/prime.svg",
-         link: "Top 10 Prime Video",
-      },
-   ];
-
-   const getGenres = () => {
-      try {
-         axios
-            .get(`https://api.themoviedb.org/3/genre/movie/list?api_key=${key}`)
-            .then(response => {
-               const data = response.data.genres.map((genre: any) => ({
-                  id: genre.id,
-                  name: genre.name,
-               }));
-               setGenres(data);
-            });
-      } catch (error) {
-         console.error("Error getting genres" + error);
-      }
-   };
-
-   useEffect(() => {
-      getGenres();
-   }, []);
-
    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setSearchItem(event.target.value);
    };
@@ -203,21 +168,11 @@ export default function Home() {
       setFilterList(filter);
    };
 
-   const handleGenreClick = (genreId: number) => {
-      setSelectedGenres([...selectedGenres, genreId]);
-   };
-
-   const [voteFiltered, setVoteFiltered] = useState<number>(0)
-
-   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-      setVoteFiltered(parseInt(event.target.value));
-   }
-
    return (
       <main className="flex min-w-screen min-h-screen flex-col items-center justify-between p-10 bg-blue-800">
          <header className="fixed md:bg-blue-800 md:bg-opacity-60 w-full top-0 flex flex-col items-center py-8 z-20">
-            <nav className="flex flex-wrap justify-center lg:justify-between items-center m-auto gap-x-20 gap-y-5 lg:gap-x-44 2xl:gap-x-[740px] 2xl:gap-y-0">
-               <NavigationMenu>
+            <nav className="flex justify-between items-center m-auto gap-x-20 gap-y-5 lg:gap-x-44 2xl:gap-x-[740px] 2xl:gap-y-0 w-[1460px]">
+               {/* <NavigationMenu>
                   <NavigationMenuList>
                      {streamingLogos.map(logo => (
                         <NavigationMenuItem
@@ -265,10 +220,51 @@ export default function Home() {
                         </NavigationMenuItem>
                      ))}
                   </NavigationMenuList>
-               </NavigationMenu>
+               </NavigationMenu> */}
+
+               <section>
+                  <div className="flex flex-row gap-5 w-full">
+                     <p
+                        className={`text-3xl font-semibold ${
+                           contentType === "movie"
+                              ? "text-blue-600"
+                              : "text-blue-600, text-opacity-60"
+                        } cursor-pointer ${
+                           contentType === "movie"
+                              ? "hover:text-blue-600"
+                              : "text-blue-600"
+                        } hover:text-blue-600 transition-all`}
+                        onClick={() => {
+                           setContentType("movie");
+                        }}
+                     >
+                        Movies
+                     </p>
+                     <Separator
+                        className="bg-blue-700 w-0.5 h-auto"
+                        orientation="vertical"
+                     />
+                     <p
+                        className={`text-3xl font-semibold ${
+                           contentType === "tv"
+                              ? "text-blue-600"
+                              : "text-blue-600, text-opacity-60"
+                        } ${
+                           contentType === "tv"
+                              ? "hover:text-blue-600"
+                              : "text-blue-600"
+                        } hover:text-blue-600 cursor-pointer transition-all`}
+                        onClick={() => {
+                           setContentType("tv");
+                        }}
+                     >
+                        TV
+                     </p>
+                  </div>
+               </section>
 
                <Input
-                  className="bg-blue-700 border-none rounded-[5px] px-5 py-5 w-80 text-left text-blue-600 text-lg"
+                  className="bg-blue-700 border-none rounded-[5px] px-5 py-5 text-left text-blue-600 text-lg w-80"
                   placeholder="Search"
                   value={searchItem}
                   onChange={handleSearchChange}
@@ -351,114 +347,6 @@ export default function Home() {
                   </ScrollArea>
                )}
             </div>
-            <section className="mt-10 flex flex-row justify-between items-center w-[1460px]">
-               <div className="flex flex-row gap-5 w-full">
-                  <p
-                     className={`text-3xl font-semibold ${
-                        contentType === "movie"
-                           ? "text-blue-600"
-                           : "text-blue-600, text-opacity-60"
-                     } cursor-pointer ${
-                        contentType === "movie"
-                           ? "hover:text-blue-600"
-                           : "text-blue-600"
-                     } hover:text-blue-600 transition-all`}
-                     onClick={() => {
-                        setContentType("movie");
-                     }}
-                  >
-                     Movies
-                  </p>
-                  <Separator
-                     className="bg-blue-700 w-0.5 h-auto"
-                     orientation="vertical"
-                  />
-                  <p
-                     className={`text-3xl font-semibold ${
-                        contentType === "tv"
-                           ? "text-blue-600"
-                           : "text-blue-600, text-opacity-60"
-                     } ${
-                        contentType === "tv"
-                           ? "hover:text-blue-600"
-                           : "text-blue-600"
-                     } hover:text-blue-600 cursor-pointer transition-all`}
-                     onClick={() => {
-                        setContentType("tv");
-                     }}
-                  >
-                     TV
-                  </p>
-               </div>
-
-               <Popover>
-                  <PopoverTrigger className="text-blue-600">
-                     Genres
-                  </PopoverTrigger>
-                  
-                  <PopoverContent className="bg-blue-700 w-[40rem] h-60 grid grid-rows-4 grid-flow-col border-none rounded-xl">
-                     {genres.map(genre => (
-                        <div
-                           className="flex flex-row items-center gap-2"
-                           key={genre.id}
-                        >
-                           <Checkbox
-                           onClick={() => handleGenreClick(genre.id)}
-                              className="text-blue-900 bg-blue-600"
-                              id={genre.name}
-                              checked={selectedGenres.includes(genre.id)}
-                           />
-                           <Label
-                              className=" text-blue-600  border-none"
-                              htmlFor={genre.name}
-                           >
-                              {genre.name}
-                           </Label>
-                        </div>
-                     ))}
-                     <input onChange={handleChange} type="range" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" min="0" max="10" value={voteFiltered} />
-                     <p className="text-blue-600 text-xl">{voteFiltered}</p>
-                  </PopoverContent>
-               </Popover>
-
-               <Select onValueChange={handleFilterChange}>
-                  <SelectTrigger className="w-80 text-blue-600 bg-blue-700 border-none text-xl">
-                     <SelectValue placeholder="Discover" />
-                  </SelectTrigger>
-
-                  <SelectContent className="bg-blue-700 text-blue-600">
-                     <SelectItem
-                        className={`text-xl font-semibold ${
-                           filterList === "discover"
-                              ? "text-blue-600"
-                              : "text-blue-600, text-opacity-60"
-                        } ${
-                           filterList === "discover"
-                              ? "hover:text-blue-600"
-                              : "text-blue-600"
-                        }  cursor-pointer transition-all`}
-                        value="discover"
-                     >
-                        Discover
-                     </SelectItem>
-
-                     <SelectItem
-                        className={`text-xl font-semibold ${
-                           filterList === "now_playing"
-                              ? "text-blue-600"
-                              : "text-blue-600, text-opacity-60"
-                        } ${
-                           filterList === "now_playing"
-                              ? "hover:text-blue-600"
-                              : "text-blue-600"
-                        }  cursor-pointer transition-all`}
-                        value="top_rated"
-                     >
-                        Top Rated
-                     </SelectItem>
-                  </SelectContent>
-               </Select>
-            </section>
          </header>
 
          {filterList === "discover" &&
@@ -469,8 +357,6 @@ export default function Home() {
                   currentPage={currentPage}
                   filterList={filterList}
                   contentType={contentType}
-                  selectedGenres={selectedGenres}
-                  voteFiltered={voteFiltered}
                />
             ) : (
                <DiscoverTV
@@ -479,8 +365,6 @@ export default function Home() {
                   currentPage={currentPage}
                   filterList={filterList}
                   contentType={contentType}
-                  selectedGenres={selectedGenres}
-                  voteFiltered={voteFiltered}
                />
             ))}
 
@@ -596,7 +480,7 @@ function PaginationSection({
    setLoading: any;
 }) {
    const handlePrevPage = () => {
-      setLoading(true);
+      // setLoading(true);
       setCurrentPage(currentPage - 1);
 
       window.scrollTo({
@@ -606,7 +490,7 @@ function PaginationSection({
    };
 
    const handleNextPage = () => {
-      setLoading(true);
+      // setLoading(true);
       setCurrentPage(currentPage + 1);
 
       window.scrollTo({
