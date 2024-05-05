@@ -149,10 +149,6 @@ export default function Home() {
             });
 
             setDataQuery(responseQuery);
-
-            // setTimeout(() => {
-            //    setLoading(false);
-            // }, 5000);
          });
    };
 
@@ -172,56 +168,6 @@ export default function Home() {
       <main className="flex min-w-screen min-h-screen flex-col items-center justify-between p-10 bg-blue-800">
          <header className="fixed md:bg-blue-800 md:bg-opacity-60 w-full top-0 flex flex-col items-center py-8 z-20">
             <nav className="flex justify-between items-center m-auto gap-x-20 gap-y-5 lg:gap-x-44 2xl:gap-x-[740px] 2xl:gap-y-0 w-[1460px]">
-               {/* <NavigationMenu>
-                  <NavigationMenuList>
-                     {streamingLogos.map(logo => (
-                        <NavigationMenuItem
-                           key={logo.id}
-                           className="flex flex-row"
-                        >
-                           <NavigationMenuTrigger className="text-blue-700 hover:text-blue-700 bg-blue-700 hover:bg-blue-600">
-                              <Image
-                                 src={logo.image}
-                                 width={50}
-                                 height={50}
-                                 alt={logo.name}
-                                 className="hover:filter hover:brightness-50"
-                              />
-                           </NavigationMenuTrigger>
-
-                           <NavigationMenuContent className="rounded-xl bg-blue-700">
-                              <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                                 <li className="row-span-3">
-                                    <NavigationMenuLink asChild>
-                                       <a
-                                          className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                                          href="/"
-                                       >
-                                          <div className="mb-2 mt-4 text-lg font-medium text-blue-600">
-                                             {logo.link}
-                                          </div>
-                                          <p className="text-sm leading-tight text-muted-foreground text-blue-600">
-                                             Beautifully designed components
-                                             that you can copy and paste into
-                                             your apps. Accessible.
-                                             Customizable. Open Source.
-                                          </p>
-                                       </a>
-                                    </NavigationMenuLink>
-                                 </li>
-
-                                 <li>
-                                    <NavigationMenuLink>
-                                       <a href="#">{logo.new}</a>
-                                    </NavigationMenuLink>
-                                 </li>
-                              </ul>
-                           </NavigationMenuContent>
-                        </NavigationMenuItem>
-                     ))}
-                  </NavigationMenuList>
-               </NavigationMenu> */}
-
                <section>
                   <div className="flex flex-row gap-5 w-full">
                      <p
@@ -240,10 +186,12 @@ export default function Home() {
                      >
                         Movies
                      </p>
+
                      <Separator
                         className="bg-blue-700 w-0.5 h-auto"
                         orientation="vertical"
                      />
+
                      <p
                         className={`text-3xl font-semibold ${
                            contentType === "tv"
@@ -270,6 +218,7 @@ export default function Home() {
                   onChange={handleSearchChange}
                />
             </nav>
+
             <div className="fixed xl:right-56 md:right-20 lg:right-40 md:top-20 top-36 lg:top-20 bg-opacity-50 rounded-xl z-20">
                {searchItem === "" ? (
                   <div></div>
@@ -368,25 +317,6 @@ export default function Home() {
                />
             ))}
 
-         {filterList === "top_rated" &&
-            (contentType === "movie" ? (
-               <TopRatedMovies
-                  setLoading={setLoading}
-                  loading={loading}
-                  currentPage={currentPage}
-                  filterList={filterList}
-                  contentType={contentType}
-               />
-            ) : (
-               <TopRatedTV
-                  setLoading={setLoading}
-                  loading={loading}
-                  currentPage={currentPage}
-                  filterList={filterList}
-                  contentType={contentType}
-               />
-            ))}
-
          <footer className="flex flex-row justify-between items-center z-10 mt-[650px]">
             <p className="text-blue-600 absolute left-56 mt-8 text-opacity-60">
                Made with{" "}
@@ -399,11 +329,13 @@ export default function Home() {
                   Daniel Saavedra
                </a>
             </p>
+
             <PaginationSection
                setLoading={setLoading}
                currentPage={currentPage}
                setCurrentPage={setCurrentPage}
             />
+
             <p className="text-right absolute right-56 text-wrap text-blue-600 text-opacity-60 mt-8">
                Built with{" "}
                <a
@@ -480,7 +412,7 @@ function PaginationSection({
    setLoading: any;
 }) {
    const handlePrevPage = () => {
-      // setLoading(true);
+      setLoading(true);
       setCurrentPage(currentPage - 1);
 
       window.scrollTo({
@@ -490,7 +422,7 @@ function PaginationSection({
    };
 
    const handleNextPage = () => {
-      // setLoading(true);
+      setLoading(true);
       setCurrentPage(currentPage + 1);
 
       window.scrollTo({
