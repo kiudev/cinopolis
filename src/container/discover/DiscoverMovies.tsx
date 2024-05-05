@@ -62,7 +62,6 @@ interface Props {
    loading: boolean;
    setLoading: Function;
    currentPage: number;
-   filterList: string;
    contentType: string;
 }
 
@@ -70,7 +69,6 @@ export default function DiscoverMovies({
    loading,
    setLoading,
    currentPage,
-   filterList,
    contentType,
 }: Props) {
    const [data, setData] = useState<
@@ -110,12 +108,17 @@ export default function DiscoverMovies({
    const [providers, setProviders] = useState<
       { id: number; logo: string; name: string }[]
    >([]);
+   const [selectedProvider, setSelectedProvider] = useState<number | null>(
+      null
+   );
 
    const getData = (pageNumber: number) => {
       try {
          axios
             .get(
-               `https://api.themoviedb.org/3/${filterList}/${contentType}?api_key=${key}&page=${pageNumber}&with_genres=${selectedGenres}&vote_average.gte=${voteAvg}&sort_by=${voteCount}`
+               `https://api.themoviedb.org/3/discover/${contentType}?api_key=${key}&page=${pageNumber}&with_genres=${selectedGenres}&vote_average.gte=${voteAvg}&sort_by=${voteCount}${
+                  "" || "&with_watch_providers="
+               }${selectedProvider || ""}&watch_region=ES&language=en-US`
             )
             .then(response => {
                const results = response.data.results.map((data: any) => ({
@@ -129,7 +132,7 @@ export default function DiscoverMovies({
                   backdropPath: data.backdrop_path,
                   genreId: data.genre_ids,
                }));
-               console.log(voteCount);
+               console.log(selectedProvider);
                setData(results);
             });
       } catch (error) {
@@ -143,7 +146,7 @@ export default function DiscoverMovies({
 
    useEffect(() => {
       getData(currentPage);
-   }, [currentPage, selectedGenres, voteAvg, voteCount]);
+   }, [currentPage, selectedGenres, voteAvg, voteCount, selectedProvider]);
 
    const getCast = (id: number) => {
       try {
@@ -179,6 +182,26 @@ export default function DiscoverMovies({
       }
    };
 
+   // const getMovieProviders = (id: number) => {
+   //    try {
+   //       axios
+   //          .get(
+   //             `https://api.themoviedb.org/3/movie/${id}/watch/providers`
+   //          )
+   //          .then(response => {
+   //             const data = response.data.results.map((providers: any) => ({
+   //                id: providers.provider_id,
+   //                logo: providers.logo_path,
+   //                name: providers.provider_name,
+   //             }));
+
+   //             setProviders(data);
+   //          });
+   //    } catch (error) {
+   //       console.error("Error getting providers " + error);
+   //    }
+   // };
+
    const handleMouseEnter = (id: number) => {
       setHovered(id);
    };
@@ -190,6 +213,7 @@ export default function DiscoverMovies({
          getCast(id);
          setSelected(resultFound);
          setDialogOpen(true);
+         // getMovieProviders(id);
       }
    };
 
@@ -239,7 +263,7 @@ export default function DiscoverMovies({
       try {
          axios
             .get(
-               `https://api.themoviedb.org/3/watch/providers/movie?api_key=${key}`
+               `https://api.themoviedb.org/3/watch/providers/movie?api_key=${key}&watch_region=ES`
             )
             .then(response => {
                const data = response.data.results.map((providers: any) => ({
@@ -266,9 +290,17 @@ export default function DiscoverMovies({
       getProviders();
    }, []);
 
+   const handleProviderClick = (value: number) => {
+      if (selectedProvider === value) {
+         setSelectedProvider(null);
+      } else {
+         setSelectedProvider(value);
+      }
+   };
+
    return (
       <section className="flex justify-center min-w-screen min-h-screen mt-20">
-         <nav className="z-20 -mt-[95px] fixed flex flex-row items-center gap-5">
+         <nav className="z-20 -mt-[20px] absolute flex flex-row items-center gap-5 ">
             <Sheet>
                <SheetTrigger
                   className={`text-3xl font-semibold ${
@@ -343,8 +375,8 @@ export default function DiscoverMovies({
                                  }
                                  className={`bg-blue-700 ${
                                     voteCount === "vote_count.asc"
-                                       ? "bg-blue-700 bg-opacity-60 hover:bg-blue-700 hover:bg-opacity-100"
-                                       : "bg-blue-700"
+                                       ? "bg-blue-700 bg-opacity-60 hover:bg-opacity-100 hover:bg-blue-700"
+                                       : voteCount === "" ? "bg-blue-700 bg-opacity-60" : "bg-blue-700"
                                  }`}
                               >
                                  <ArrowUpNarrowWide />
@@ -368,12 +400,22 @@ export default function DiscoverMovies({
                </SheetContent>
             </Sheet>
 
-            <Carousel opts={{slidesToScroll: 3}} className="flex flex-row items-center justify-center w-[600px]">
+            <Carousel
+               opts={{ slidesToScroll: 3 }}
+               className="flex flex-row items-center justify-center w-[1400px]"
+            >
                <CarouselContent className="">
                   {providers.map(provider => (
                      <CarouselItem className="basis-1/8" key={provider.id}>
                         <Image
-                           className="w-14 rounded-xl"
+                           onClick={() => handleProviderClick(provider.id)}
+                           className={`w-14 rounded-xl  ${
+                              selectedProvider === provider.id
+                                 ? "opacity-100"
+                                 : selectedProvider === null
+                                 ? "opacity-100"
+                                 : "opacity-30"
+                           }`}
                            alt={provider.name}
                            src={`https://image.tmdb.org/t/p/w154${provider.logo}`}
                            width={100}
@@ -382,8 +424,8 @@ export default function DiscoverMovies({
                      </CarouselItem>
                   ))}
                </CarouselContent>
-                  <CarouselPrevious className="ml-5" />
-                  <CarouselNext className="mr-5" />
+               <CarouselPrevious className="ml-5" />
+               <CarouselNext className="mr-5" />
             </Carousel>
          </nav>
 

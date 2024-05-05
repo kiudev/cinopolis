@@ -1,5 +1,7 @@
 "use client";
 import Image from "next/image";
+import axios from "axios";
+
 import {
    Card,
    CardDescription,
@@ -15,7 +17,6 @@ import {
    ChangeEvent,
    MouseEventHandler,
 } from "react";
-import axios from "axios";
 import {
    Carousel,
    CarouselContent,
@@ -78,8 +79,6 @@ import { Image as ImageIcon } from "lucide-react";
 
 import DiscoverMovies from "@/container/discover/DiscoverMovies";
 import DiscoverTV from "@/container/discover/DiscoverTV";
-import TopRatedMovies from "@/container/top-rated/TopRatedMovies";
-import TopRatedTV from "@/container/top-rated/TopRatedTV";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -100,14 +99,9 @@ export default function Home() {
       }[]
    >([]);
 
-   const [genres, setGenres] = useState<{ id: number; name: string }[]>([]);
-
    const [loading, setLoading] = useState(true);
    const [currentPage, setCurrentPage] = useState(1);
    const [searchItem, setSearchItem] = useState("");
-   const [hovered, setHovered] = useState<number | false>(false);
-   const [clicked, setClicked] = useState(false);
-   const [filterList, setFilterList] = useState("discover");
    const [contentType, setContentType] = useState("movie");
 
    const getQuery = (title: string) => {
@@ -160,13 +154,9 @@ export default function Home() {
       setSearchItem(event.target.value);
    };
 
-   const handleFilterChange = (filter: string) => {
-      setFilterList(filter);
-   };
-
    return (
       <main className="flex min-w-screen min-h-screen flex-col items-center justify-between p-10 bg-blue-800">
-         <header className="fixed md:bg-blue-800 md:bg-opacity-60 w-full top-0 flex flex-col items-center py-8 z-20">
+         <header className="fixed bg-gradient-to-b from-blue-800 to-transparent w-full top-0 flex flex-col items-center py-10 z-30">
             <nav className="flex justify-between items-center m-auto gap-x-20 gap-y-5 lg:gap-x-44 2xl:gap-x-[740px] 2xl:gap-y-0 w-[1460px]">
                <section>
                   <div className="flex flex-row gap-5 w-full">
@@ -219,7 +209,7 @@ export default function Home() {
                />
             </nav>
 
-            <div className="fixed xl:right-56 md:right-20 lg:right-40 md:top-20 top-36 lg:top-20 bg-opacity-50 rounded-xl z-20">
+            <div className="fixed xl:right-56 md:right-20 lg:right-40 md:top-20 top-36 lg:top-20 bg-opacity-50 rounded-xl">
                {searchItem === "" ? (
                   <div></div>
                ) : (
@@ -298,24 +288,21 @@ export default function Home() {
             </div>
          </header>
 
-         {filterList === "discover" &&
-            (contentType === "movie" ? (
-               <DiscoverMovies
-                  setLoading={setLoading}
-                  loading={loading}
-                  currentPage={currentPage}
-                  filterList={filterList}
-                  contentType={contentType}
-               />
-            ) : (
-               <DiscoverTV
-                  setLoading={setLoading}
-                  loading={loading}
-                  currentPage={currentPage}
-                  filterList={filterList}
-                  contentType={contentType}
-               />
-            ))}
+         {contentType === "movie" ? (
+            <DiscoverMovies
+               setLoading={setLoading}
+               loading={loading}
+               currentPage={currentPage}
+               contentType={contentType}
+            />
+         ) : (
+            <DiscoverTV
+               setLoading={setLoading}
+               loading={loading}
+               currentPage={currentPage}
+               contentType={contentType}
+            />
+         )}
 
          <footer className="flex flex-row justify-between items-center z-10 mt-[650px]">
             <p className="text-blue-600 absolute left-56 mt-8 text-opacity-60">
