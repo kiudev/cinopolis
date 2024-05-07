@@ -35,9 +35,9 @@ export default function CarouselLayout({
 }: Props) {
    return (
       <>
-         <div className="bg-gradient-to-t from-blue-800 from-80% to-transparent w-full h-[20rem] mt-[450px] absolute z-10"></div>
+         <div className="bg-gradient-to-t from-blue-800 from-80% to-transparent w-full h-[25rem] absolute left-0 right-0 z-10 -mt-80"></div>
 
-         <div className="bg-gradient-to-b from-blue-800 from-5% to-transparent w-full h-[100px] absolute z-10"></div>
+         <div className="bg-gradient-to-b from-blue-800 from-30% to-transparent to-100% w-full h-[100px] absolute z-10 top-32"></div>
 
          <header className="lg:flex hidden">
             {loading ? (
@@ -53,17 +53,17 @@ export default function CarouselLayout({
                         }),
                      ]}
                      opts={{ align: "start", loop: true }}
-                     className="lg:w-[900px] xl:w-[1000px] 2xl:w-[1460px] h-[550px] rounded-xl bg-blue-700 border border-blue-700 bg-opacity-10"
+                     className="rounded-xl border border-blue-700 bg-opacity-10 2xl:flex hidden"
                   >
                      <DialogTrigger>
-                        <CarouselContent className="xl:w-[1015px] 2xl:w-[1500px]">
+                        <CarouselContent className="2xl:w-[1200px] 2xl:h-[700px]">
                            {children}
                         </CarouselContent>
                      </DialogTrigger>
 
-                     <CarouselPrevious className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20" />
+                     <CarouselPrevious className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20 -mt-32" />
 
-                     <CarouselNext className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20" />
+                     <CarouselNext className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20 -mt-32" />
                   </Carousel>
                </Dialog>
             )}

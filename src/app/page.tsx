@@ -157,7 +157,7 @@ export default function Home() {
    return (
       <main className="flex min-w-screen min-h-screen flex-col items-center justify-between p-10 bg-blue-800">
          <header className="fixed bg-gradient-to-b from-blue-800 to-transparent w-full top-0 flex flex-col items-center py-10 z-30">
-            <nav className="flex justify-between items-center m-auto gap-x-20 gap-y-5 lg:gap-x-44 2xl:gap-x-[740px] 2xl:gap-y-0 w-[1460px]">
+            <nav className="flex justify-between items-center m-auto gap-x-20 gap-y-5 lg:gap-x-44 2xl:gap-x-[740px] 2xl:gap-y-0 w-[90vw] 2xl:w-[1460px] flex-wrap">
                <section>
                   <div className="flex flex-row gap-5 w-full">
                      <p
@@ -304,7 +304,7 @@ export default function Home() {
             />
          )}
 
-         <footer className="flex flex-row justify-between items-center z-10 mt-[650px]">
+         <footer className="flex flex-row justify-between items-center">
             <p className="text-blue-600 absolute left-56 mt-8 text-opacity-60">
                Made with{" "}
                <a
@@ -399,7 +399,7 @@ function PaginationSection({
    setLoading: any;
 }) {
    const handlePrevPage = () => {
-      setLoading(true);
+      // setLoading(true);
       setCurrentPage(currentPage - 1);
 
       window.scrollTo({
@@ -409,7 +409,7 @@ function PaginationSection({
    };
 
    const handleNextPage = () => {
-      setLoading(true);
+      // setLoading(true);
       setCurrentPage(currentPage + 1);
 
       window.scrollTo({

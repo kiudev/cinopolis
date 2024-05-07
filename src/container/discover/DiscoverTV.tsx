@@ -57,6 +57,8 @@ import {
    ArrowDownWideNarrow,
 } from "lucide-react";
 import { ChangeEvent } from "react";
+import CardMobileLayout from "@/components/layout/CardMobileLayout";
+import { useMediaQuery } from "usehooks-ts";
 
 interface Props {
    loading: boolean;
@@ -113,6 +115,8 @@ export default function DiscoverMovies({
    const [selectedProvider, setSelectedProvider] = useState<number | null>(
       null
    );
+
+   const mobile = useMediaQuery("only screen and (max-width : 1024px)");
 
    const getData = (pageNumber: number) => {
       try {
@@ -292,8 +296,8 @@ export default function DiscoverMovies({
    };
 
    return (
-      <section className="flex justify-center min-w-screen min-h-screen mt-20">
-         <nav className="z-20 -mt-[95px] fixed flex flex-row items-center gap-5 -ml-24">
+      <section className="flex justify-center items-center flex-col min-w-screen min-h-screen mt-20">
+         <nav className="z-20 -mt-[20px] flex flex-row items-center gap-5 lg:mb-10 xl:mb-0">
             <Sheet>
                <SheetTrigger
                   className={`text-3xl font-semibold ${
@@ -308,6 +312,7 @@ export default function DiscoverMovies({
                >
                   <SlidersHorizontal className="w-10 h-10" />
                </SheetTrigger>
+
                <SheetContent
                   side="bottom"
                   className="bg-blue-800 border-none flex flex-row items-center justify-left"
@@ -343,6 +348,7 @@ export default function DiscoverMovies({
                            </div>
                         </SheetDescription>
                      </SheetHeader>
+
                      <div className="flex flex-col gap-5 w-72">
                         <SheetHeader className=" text-blue-600">
                            <SheetTitle>Vote Rating</SheetTitle>
@@ -368,7 +374,9 @@ export default function DiscoverMovies({
                                  }
                                  className={`bg-blue-700 ${
                                     voteCount === "vote_count.asc"
-                                       ? "bg-blue-700 bg-opacity-60 hover:bg-blue-700 hover:bg-opacity-100"
+                                       ? "bg-blue-700 bg-opacity-60 hover:bg-opacity-100 hover:bg-blue-700"
+                                       : voteCount === ""
+                                       ? "bg-blue-700 bg-opacity-60"
                                        : "bg-blue-700"
                                  }`}
                               >
@@ -395,19 +403,19 @@ export default function DiscoverMovies({
 
             <Carousel
                opts={{ slidesToScroll: 3 }}
-               className="flex flex-row items-center justify-center w-[600px]"
+               className="flex flex-row items-center justify-center w-[80vw] 2xl:w-[1400px]"
             >
                <CarouselContent className="">
                   {providers.map(provider => (
                      <CarouselItem className="basis-1/8" key={provider.id}>
                         <Image
                            onClick={() => handleProviderClick(provider.id)}
-                           className={`w-14 rounded-xl  ${
+                           className={`w-14 h-14 rounded-xl  ${
                               selectedProvider === provider.id
                                  ? "opacity-100"
                                  : selectedProvider === null
                                  ? "opacity-100"
-                                 : "opacity-50"
+                                 : "opacity-30"
                            }`}
                            alt={provider.name}
                            src={`https://image.tmdb.org/t/p/w154${provider.logo}`}
@@ -434,32 +442,49 @@ export default function DiscoverMovies({
                   alt={movie.title}
                   backdropPath={movie.backdropPath}
                   onClick={() => handleSelected(movie.id)}
+                  voteAvg={movie.voteAverage}
                />
             ))}
          </CarouselLayout>
 
          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-               <div className="flex flex-wrap mt-24 lg:mt-[500px] justify-center items-center min-h-20 flex-row w-full 2xl:w-[1500px] gap-y-32 gap-x-5 xl:gap-y-5 z-10 absolute">
-                  {data.map(movie => (
-                     <div key={movie.id}>
-                        <CardLayout
-                           onClick={() => handleSelected(movie.id)}
-                           onMouseEnter={() => handleMouseEnter(movie.id)}
-                           onMouseLeave={() => setHovered(false)}
-                           loading={loading}
-                           headerStyle={{
-                              display: hovered === movie.id ? "flex" : "none",
-                           }}
-                           year={movie.year}
-                           voteAverage={movie.voteAverage}
-                           voteCount={movie.voteCount}
-                           alt={movie.title}
-                           backdropPath={movie.backdropPath}
-                           title={movie.title}
-                        />
-                     </div>
-                  ))}
+               <div className="flex flex-wrap justify-center items-center min-h-20 flex-row w-full 2xl:w-[1500px] gap-y-5 gap-x-5 lg:gap-y-32 xl:gap-y-5 z-10 mt-10 2xl:-mt-60">
+                  {data.map(movie =>
+                     mobile ? (
+                        <div key={movie.id}>
+                           <CardMobileLayout
+                              onClick={() => handleSelected(movie.id)}
+                              loading={loading}
+                              year={movie.year}
+                              voteAverage={movie.voteAverage}
+                              voteCount={movie.voteCount}
+                              alt={movie.title}
+                              posterPath={movie.posterPath}
+                              title={movie.title}
+                           />
+                        </div>
+                     ) : (
+                        <div key={movie.id}>
+                           <CardLayout
+                              onClick={() => handleSelected(movie.id)}
+                              onMouseEnter={() => handleMouseEnter(movie.id)}
+                              onMouseLeave={() => setHovered(false)}
+                              loading={loading}
+                              headerStyle={{
+                                 display:
+                                    hovered === movie.id ? "flex" : "none",
+                              }}
+                              year={movie.year}
+                              voteAverage={movie.voteAverage}
+                              voteCount={movie.voteCount}
+                              alt={movie.title}
+                              backdropPath={movie.backdropPath}
+                              title={movie.title}
+                           />
+                        </div>
+                     )
+                  )}
                </div>
             </DialogTrigger>
 
