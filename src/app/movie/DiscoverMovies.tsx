@@ -59,6 +59,7 @@ import {
 import { ChangeEvent } from "react";
 import CardMobileLayout from "@/components/layout/CardMobileLayout";
 import { useMediaQuery } from "usehooks-ts";
+import Link from "next/link";
 
 interface Props {
    loading: boolean;
@@ -136,7 +137,6 @@ export default function DiscoverMovies({
                   backdropPath: data.backdrop_path,
                   genreId: data.genre_ids,
                }));
-               console.log(selectedProvider);
                setData(results);
             });
       } catch (error) {
@@ -496,20 +496,31 @@ export default function DiscoverMovies({
             </DialogTrigger>
 
             {selected && (
-               <DialogContent className="grid grid-rows-3 grid-flow-col gap-10 sm:max-w-[1000px] max-h-[500px] border-none text-blue-600 rounded-xl">
-                  <Image
-                     className="w-72 row-span-3"
-                     alt={selected.title}
-                     src={`https://image.tmdb.org/t/p/w500${selected.posterPath}`}
-                     width={500}
-                     height={500}
-                  />
+               <DialogContent className="lg:grid lg:grid-rows-3 lg:grid-flow-col gap-10 sm:max-w-[1000px] max-h-[1000px] lg:max-h-[500px] border-none text-blue-600 rounded-xl">
+                  {mobile ? (
+                     <Image
+                        className="w-[100vw] row-span-3"
+                        alt={selected.title}
+                        src={`https://image.tmdb.org/t/p/w500${selected.backdropPath}`}
+                        width={500}
+                        height={500}
+                     />
+                  ) : (
+                     <Image
+                        className="w-[100vw] lg:w-72 row-span-3"
+                        alt={selected.title}
+                        src={`https://image.tmdb.org/t/p/w500${selected.posterPath}`}
+                        width={500}
+                        height={500}
+                     />
+                  )}
+
                   <div className="bg-blue-700 absolute w-10 h-14 left-5 flex justify-center">
                      <p className="px-10 py-6 text-lg">
                         {selected.voteAverage}
                      </p>
                   </div>
-                  <DialogHeader className="flex flex-col gap-5">
+                  <DialogHeader className="flex flex-col gap-5 w-96 m-auto lg:w-auto">
                      <DialogTitle className="text-blue-600 font-bold text-6xl flex flex-row gap-5 items-center">
                         <p>
                            {selected.title}
@@ -517,41 +528,47 @@ export default function DiscoverMovies({
                         </p>
                      </DialogTitle>
 
-                     <DialogDescription className="text-blue-600 text-opacity-60 text-md">
+                     <DialogDescription className="text-blue-600 text-opacity-60 text-md text-left">
                         {selected.overview}
                      </DialogDescription>
-                     <footer className="flex flex-row items-center">
+                     <footer className="grid grid-cols-2 lg:flex lg:flex-row items-center">
                         {selected.cast?.map(actor => (
                            <TooltipProvider delayDuration={100}>
-                              <Tooltip key={actor.id}>
-                                 <TooltipTrigger asChild>
-                                    {actor.profilePath ? (
-                                       <Image
-                                          className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-40"
-                                          alt={actor.name}
-                                          src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
-                                          width={500}
-                                          height={500}
-                                       />
-                                    ) : (
-                                       <ImageIcon className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-36 bg-blue-900" />
-                                    )}
-                                 </TooltipTrigger>
+                              {mobile ? (
+                                 <div></div>
+                              ) : (
+                                 <Tooltip key={actor.id}>
+                                    <TooltipTrigger asChild>
+                                       {actor.profilePath ? (
+                                          <Image
+                                             className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-40"
+                                             alt={actor.name}
+                                             src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
+                                             width={500}
+                                             height={500}
+                                          />
+                                       ) : (
+                                          <ImageIcon className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-36 bg-blue-900" />
+                                       )}
+                                    </TooltipTrigger>
 
-                                 <TooltipContent
-                                    side="bottom"
-                                    className="border-none shadow-none"
-                                 >
-                                    <p className="font-semibold text-lg">
-                                       {actor.name}
-                                    </p>
-                                    <p className="text-blue-600 text-opacity-60">
-                                       {actor.nameCharacter}
-                                    </p>
-                                 </TooltipContent>
-                              </Tooltip>
+                                    <TooltipContent
+                                       side="bottom"
+                                       className="border-none shadow-none"
+                                    >
+                                       <p className="font-semibold text-lg">
+                                          {actor.name}
+                                       </p>
+                                       <p className="text-blue-600 text-opacity-60">
+                                          {actor.nameCharacter}
+                                       </p>
+                                    </TooltipContent>
+                                 </Tooltip>
+                              )}
                            </TooltipProvider>
                         ))}
+
+                        <Link href={`/movie/${selected.id}`}>More details</Link>
                      </footer>
                   </DialogHeader>
                </DialogContent>

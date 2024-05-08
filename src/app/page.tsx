@@ -77,8 +77,8 @@ import { key } from "./key";
 import { Separator } from "@/components/ui/separator";
 import { Image as ImageIcon } from "lucide-react";
 
-import DiscoverMovies from "@/container/discover/DiscoverMovies";
-import DiscoverTV from "@/container/discover/DiscoverTV";
+import DiscoverMovies from "@/app/movie/DiscoverMovies";
+import DiscoverTV from "@/app/tv/DiscoverTV";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
