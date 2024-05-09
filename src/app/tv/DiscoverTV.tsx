@@ -59,6 +59,7 @@ import {
 import { ChangeEvent } from "react";
 import CardMobileLayout from "@/components/layout/CardMobileLayout";
 import { useMediaQuery } from "usehooks-ts";
+import Link from "next/link";
 
 interface Props {
    loading: boolean;
@@ -297,7 +298,7 @@ export default function DiscoverMovies({
 
    return (
       <section className="flex justify-center items-center flex-col min-w-screen min-h-screen mt-20">
-         <nav className="z-20 -mt-[20px] flex flex-row items-center gap-5 lg:mb-10 xl:mb-0">
+         <nav className="z-20 mt-10 lg:-mt-[20px] flex flex-row items-center gap-5 lg:mb-10 xl:mb-0">
             <Sheet>
                <SheetTrigger
                   className={`text-3xl font-semibold ${
@@ -403,7 +404,7 @@ export default function DiscoverMovies({
 
             <Carousel
                opts={{ slidesToScroll: 3 }}
-               className="flex flex-row items-center justify-center w-[80vw] 2xl:w-[1400px]"
+               className="flex flex-row items-center justify-center w-[60vw] 2xl:w-[1400px]"
             >
                <CarouselContent className="">
                   {providers.map(provider => (
@@ -489,63 +490,80 @@ export default function DiscoverMovies({
             </DialogTrigger>
 
             {selected && (
-               <DialogContent className="grid grid-rows-3 grid-flow-col gap-10 sm:max-w-[1000px] max-h-[500px] border-none text-blue-600 rounded-xl">
-                  <Image
-                     className="w-72 row-span-3"
-                     alt={selected.title}
-                     src={`https://image.tmdb.org/t/p/w500${selected.posterPath}`}
-                     width={500}
-                     height={500}
-                  />
+               <DialogContent className="lg:grid lg:grid-rows-3 lg:grid-flow-col gap-10 max-w-[390px] lg:max-w-[1000px] max-h-[1000px] lg:max-h-[500px] border-none text-blue-600 justify-center">
+                  {mobile ? (
+                     <Image
+                        className="w-[100vw] sm:w-96 row-span-3"
+                        alt={selected.title}
+                        src={`https://image.tmdb.org/t/p/w500${selected.backdropPath}`}
+                        width={500}
+                        height={500}
+                     />
+                  ) : (
+                     <Image
+                        className="w-[100vw] lg:w-72 row-span-3"
+                        alt={selected.title}
+                        src={`https://image.tmdb.org/t/p/w500${selected.posterPath}`}
+                        width={500}
+                        height={500}
+                     />
+                  )}
+
                   <div className="bg-blue-700 absolute w-10 h-14 left-5 flex justify-center">
                      <p className="px-10 py-6 text-lg">
                         {selected.voteAverage}
                      </p>
                   </div>
-                  <DialogHeader className="flex flex-col gap-5">
-                     <DialogTitle className="text-blue-600 font-bold text-6xl flex flex-row gap-5 items-center">
+                  <DialogHeader className="flex flex-col gap-5 w-96 m-auto lg:w-auto">
+                     <DialogTitle className="text-blue-600 font-bold text-3xl md:text-4xl lg:text-6xl flex flex-row gap-5 items-center justify-center lg:justify-start text-center lg:text-left">
                         <p>
                            {selected.title}
                            <p className="text-xl mt-2">{selected.year}</p>
                         </p>
                      </DialogTitle>
 
-                     <DialogDescription className="text-blue-600 text-opacity-60 text-md">
+                     <DialogDescription className="text-blue-600 text-opacity-60 text-sm md:text-md text-left">
                         {selected.overview}
                      </DialogDescription>
                      <footer className="flex flex-row items-center">
                         {selected.cast?.map(actor => (
                            <TooltipProvider delayDuration={100}>
-                              <Tooltip key={actor.id}>
-                                 <TooltipTrigger asChild>
-                                    {actor.profilePath ? (
-                                       <Image
-                                          className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-40"
-                                          alt={actor.name}
-                                          src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
-                                          width={500}
-                                          height={500}
-                                       />
-                                    ) : (
-                                       <ImageIcon className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-36 bg-blue-900" />
-                                    )}
-                                 </TooltipTrigger>
+                              {mobile ? (
+                                 <div></div>
+                              ) : (
+                                 <Tooltip key={actor.id}>
+                                    <TooltipTrigger asChild>
+                                       {actor.profilePath ? (
+                                          <Image
+                                             className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-40"
+                                             alt={actor.name}
+                                             src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
+                                             width={500}
+                                             height={500}
+                                          />
+                                       ) : (
+                                          <ImageIcon className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-36 bg-blue-900" />
+                                       )}
+                                    </TooltipTrigger>
 
-                                 <TooltipContent
-                                    side="bottom"
-                                    className="border-none shadow-none"
-                                 >
-                                    <p className="font-semibold text-lg">
-                                       {actor.name}
-                                    </p>
-                                    <p className="text-blue-600 text-opacity-60">
-                                       {actor.nameCharacter}
-                                    </p>
-                                 </TooltipContent>
-                              </Tooltip>
+                                    <TooltipContent
+                                       side="bottom"
+                                       className="border-none shadow-none"
+                                    >
+                                       <p className="font-semibold text-lg">
+                                          {actor.name}
+                                       </p>
+                                       <p className="text-blue-600 text-opacity-60">
+                                          {actor.nameCharacter}
+                                       </p>
+                                    </TooltipContent>
+                                 </Tooltip>
+                              )}
                            </TooltipProvider>
                         ))}
+
                      </footer>
+                        <Link className="text-xl text-right" href={`/movie/${selected.id}`}>More details</Link>
                   </DialogHeader>
                </DialogContent>
             )}

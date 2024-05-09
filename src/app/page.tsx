@@ -80,6 +80,7 @@ import { Image as ImageIcon } from "lucide-react";
 import DiscoverMovies from "@/app/movie/DiscoverMovies";
 import DiscoverTV from "@/app/tv/DiscoverTV";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Home() {
    const [dataQuery, setDataQuery] = useState<
@@ -157,7 +158,7 @@ export default function Home() {
    return (
       <main className="flex min-w-screen min-h-screen flex-col items-center justify-between p-10 bg-blue-800">
          <header className="fixed bg-gradient-to-b from-blue-800 to-transparent w-full top-0 flex flex-col items-center py-10 z-30">
-            <nav className="flex justify-between items-center m-auto gap-x-20 gap-y-5 lg:gap-x-44 2xl:gap-x-[740px] 2xl:gap-y-0 w-[90vw] 2xl:w-[1460px] flex-wrap">
+            <nav className="flex justify-center lg:justify-between items-center m-auto gap-x-20 gap-y-5 lg:gap-x-44 2xl:gap-x-[740px] 2xl:gap-y-0 w-[90vw] 2xl:w-[1460px] flex-wrap">
                <section>
                   <div className="flex flex-row gap-5 w-full">
                      <p
@@ -202,7 +203,7 @@ export default function Home() {
                </section>
 
                <Input
-                  className="bg-blue-700 border-none rounded-[5px] px-5 py-5 text-left text-blue-600 text-lg w-80"
+                  className="bg-blue-900 border-blue-600 border-none rounded-[5px] px-5 py-5 text-center md:text-left text-blue-600 text-lg w-80"
                   placeholder="Search"
                   value={searchItem}
                   onChange={handleSearchChange}
@@ -221,62 +222,66 @@ export default function Home() {
                            {dataQuery.map(data => (
                               <Card
                                  key={data.id}
-                                 className="border-none flex w-full h-auto flex-row items-center bg-blue-700 p-0"
+                                 className="border-none flex w-full h-auto flex-row items-center bg-blue-900 p-0"
                               >
-                                 <div className="flex flex-wrap gap-x-3">
-                                    {data.posterPath || data.profilePath ? (
-                                       <Image
-                                          className="w-20 p-2 rounded-xl"
-                                          alt=""
-                                          src={`https://image.tmdb.org/t/p/w154${
-                                             data.posterPath || data.profilePath
-                                          }`}
-                                          width={500}
-                                          height={500}
-                                       />
-                                    ) : (
-                                       <ImageIcon className="w-16 ml-2 p-2 h-20 bg-blue-900 text-blue-600" />
-                                    )}
+                                 <Link href={`/movie/${data.id}`}>
+                                    <div className="flex flex-wrap gap-x-3">
+                                       {data.posterPath || data.profilePath ? (
+                                          <Image
+                                             className="w-20 p-2 rounded-xl"
+                                             alt=""
+                                             src={`https://image.tmdb.org/t/p/w154${
+                                                data.posterPath ||
+                                                data.profilePath
+                                             }`}
+                                             width={500}
+                                             height={500}
+                                          />
+                                       ) : (
+                                          <ImageIcon className="w-16 ml-2 p-2 h-20 bg-blue-900 text-blue-600" />
+                                       )}
 
-                                    <ul>
-                                       <li className="text-left text-blue-600 w-96 text-lg font-semibold mt-2">
-                                          {data.title || data.name}
-                                       </li>
+                                       <ul>
+                                          <li className="text-left text-blue-600 w-96 text-lg font-semibold mt-2">
+                                             {data.title || data.name}
+                                          </li>
 
-                                       <li className="text-left text-md text-blue-600 text-opacity-60">
-                                          {data.year ||
-                                             data.firstAirYear ||
-                                             data.knownForDepartment}
-                                       </li>
+                                          <li className="text-left text-md text-blue-600 text-opacity-60">
+                                             {data.year ||
+                                                data.firstAirYear ||
+                                                data.knownForDepartment}
+                                          </li>
 
-                                       <div className="flex w-full gap-2 mt-2">
-                                          {Array.isArray(data.knownFor) &&
-                                             data.knownFor.map(
-                                                (
-                                                   person: any,
-                                                   index: number
-                                                ) => (
-                                                   <ul
-                                                      key={person.id}
-                                                      className="flex justify-center flex-row"
-                                                   >
-                                                      <li className="text-left text-md text-blue-600">
-                                                         {person.title ||
-                                                            person.name}
-                                                         {index <
-                                                         data.knownFor.length -
-                                                            1
-                                                            ? ","
-                                                            : " "}
-                                                      </li>
-                                                   </ul>
-                                                )
-                                             )}
-                                       </div>
-                                    </ul>
+                                          <div className="flex w-full gap-2 mt-2">
+                                             {Array.isArray(data.knownFor) &&
+                                                data.knownFor.map(
+                                                   (
+                                                      person: any,
+                                                      index: number
+                                                   ) => (
+                                                      <ul
+                                                         key={person.id}
+                                                         className="flex justify-center flex-row"
+                                                      >
+                                                         <li className="text-left text-md text-blue-600">
+                                                            {person.title ||
+                                                               person.name}
+                                                            {index <
+                                                            data.knownFor
+                                                               .length -
+                                                               1
+                                                               ? ","
+                                                               : " "}
+                                                         </li>
+                                                      </ul>
+                                                   )
+                                                )}
+                                          </div>
+                                       </ul>
 
-                                    <Separator className="bg-blue-600 w-[700px] bg-opacity-60" />
-                                 </div>
+                                       <Separator className="bg-blue-600 w-[700px] bg-opacity-60" />
+                                    </div>
+                                 </Link>
                               </Card>
                            ))}
                         </div>
@@ -304,26 +309,14 @@ export default function Home() {
             />
          )}
 
-         <footer className="flex flex-row justify-between items-center">
-            <p className="text-blue-600 absolute left-56 mt-8 text-opacity-60">
-               Made with{" "}
-               <a
-                  href="https://kiudev.vercel.app"
-                  target="_blank"
-                  className="text-blue-600 hover:underline hover:underline-offset-4"
-               >
-                  🩵 <span className="text-blue-600 text-opacity-60">by</span>{" "}
-                  Daniel Saavedra
-               </a>
-            </p>
-
+         <footer className="flex flex-col md:flex-row justify-between items-center">
             <PaginationSection
                setLoading={setLoading}
                currentPage={currentPage}
                setCurrentPage={setCurrentPage}
             />
 
-            <p className="text-right absolute right-56 text-wrap text-blue-600 text-opacity-60 mt-8">
+            <p className="text-right xl:absolute right-56 text-wrap text-blue-600 text-opacity-60 mt-8">
                Built with{" "}
                <a
                   href="https://nextjs.org"
@@ -357,6 +350,18 @@ export default function Home() {
                   TMDB
                </a>{" "}
                data.
+            </p>
+
+            <p className="text-blue-600 xl:absolute left-56 mt-8 text-opacity-60">
+               Made with{" "}
+               <a
+                  href="https://kiudev.vercel.app"
+                  target="_blank"
+                  className="text-blue-600 hover:underline hover:underline-offset-4"
+               >
+                  🩵 <span className="text-blue-600 text-opacity-60">by</span>{" "}
+                  Daniel Saavedra
+               </a>
             </p>
          </footer>
       </main>

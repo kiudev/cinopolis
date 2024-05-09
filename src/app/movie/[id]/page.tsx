@@ -55,6 +55,9 @@ export default function MovieDetails() {
    >([]);
 
    const [videos, setVideos] = useState<any[]>([]);
+   const [displayCast, setDisplayCast] = useState<boolean>(false);
+   const [displayVideos, setDisplayVideos] = useState<boolean>(false);
+   const [displayCrew, setDisplayCrew] = useState<boolean>(true);
    const mobile = useMediaQuery("only screen and (max-width : 1024px)");
 
    useEffect(() => {
@@ -120,7 +123,8 @@ export default function MovieDetails() {
             )
             .then(response => {
                const videos = response.data.results;
-               setVideos(videos);
+               const trailers = videos.filter((v: any) => v.type === "Trailer");
+               setVideos(trailers);
             })
             .catch(error => {
                console.error("Error fetching movie credits:", error);
@@ -184,37 +188,104 @@ export default function MovieDetails() {
                      </CardDescription>
                   </CardHeader>
 
-                  {/* <CardContent className="">
-                    <h1>Cast</h1>
-                     {creditsCast ? (
-                        <div className="grid grid-cols-2">
-                           {creditsCast.map(cast => (
-                              <div key={cast.id} className="">
-                                 <Image
-                                    className="w-10"
-                                    src={`https://image.tmdb.org/t/p/w500${cast.profile_path}`}
-                                    width={500}
-                                    height={500}
-                                    alt={cast.name}
-                                 />
+                  <ul className="flex flex-row gap-5 justify-evenly w-full">
+                     <li
+                        onClick={() => {
+                           setDisplayCast(true);
+                           setDisplayVideos(false);
+                           setDisplayCrew(false);
+                        }}
+                        className={`text-xl font-semibold ${
+                           displayCast
+                              ? "text-blue-600"
+                              : "text-blue-600, text-opacity-60"
+                        } cursor-pointer ${
+                           displayCast ? "hover:text-blue-600" : "text-blue-600"
+                        } hover:text-blue-600 transition-all`}
+                     >
+                        Cast
+                     </li>
+                     <li
+                        onClick={() => {
+                           setDisplayCast(false);
+                           setDisplayVideos(false);
+                           setDisplayCrew(true);
+                        }}
+                        className={`text-xl font-semibold ${
+                           displayCrew
+                              ? "text-blue-600"
+                              : "text-blue-600, text-opacity-60"
+                        } cursor-pointer ${
+                           displayCrew ? "hover:text-blue-600" : "text-blue-600"
+                        } hover:text-blue-600 transition-all`}
+                     >
+                        Crew
+                     </li>
+                     <li
+                        onClick={() => {
+                           setDisplayCast(false);
+                           setDisplayVideos(true);
+                           setDisplayCrew(false);
+                        }}
+                        className={`text-xl font-semibold ${
+                           displayVideos
+                              ? "text-blue-600"
+                              : "text-blue-600, text-opacity-60"
+                        } cursor-pointer ${
+                           displayVideos
+                              ? "hover:text-blue-600"
+                              : "text-blue-600"
+                        } hover:text-blue-600 transition-all`}
+                     >
+                        Videos
+                     </li>
+                  </ul>
 
-                                 <p>{cast.name}</p>
-                              </div>
-                           ))}
-                        </div>
-                     ) : (
-                        <p>No credits available.</p>
-                     )}
-                  </CardContent> */}
+                  {displayCast ? (
+                     <CardContent className="">
+                        {creditsCast ? (
+                           <div className="grid grid-cols-2 gap-5">
+                              {creditsCast.map(cast => (
+                                 <div key={cast.id} className="flex flex-row justify-center gap-2">
+                                    <Image
+                                       className="w-20 rounded-xl"
+                                       src={`https://image.tmdb.org/t/p/w500${cast.profile_path}`}
+                                       width={500}
+                                       height={500}
+                                       alt={cast.name}
+                                    />
 
-                  {/* <CardContent>
-                    {videos.map(video => (
-                      <div key={video.id}>
-                        <p>{video.name}</p>
-                        <iframe width="300" height="200" src={`https://www.youtube.com/embed/${video.key}`} frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                      </div>
-                    ))}
-                  </CardContent> */}
+                                    <p className="w-20">{cast.name}</p>
+                                 </div>
+                              ))}
+                           </div>
+                        ) : (
+                           <p>No credits available.</p>
+                        )}
+                     </CardContent>
+                  ) : displayVideos ? (
+                     <CardContent>
+                        {videos.map(video => (
+                           <div key={video.id}>
+                              <p>{video.name}</p>
+                              <iframe
+                                 width="300"
+                                 height="200"
+                                 src={`https://www.youtube.com/embed/${video.key}`}
+                                 frameborder="0"
+                                 allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                 allowfullscreen
+                              ></iframe>
+                           </div>
+                        ))}
+                     </CardContent>
+                  ) : displayCrew ? (
+                     <div>Crew</div>
+                  ) : (
+                     <div></div>
+                  )}
+
+                  {}
                </Card>
             </div>
          ) : (
