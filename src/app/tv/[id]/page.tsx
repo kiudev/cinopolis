@@ -18,7 +18,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useMediaQuery } from "usehooks-ts";
 
-export default function MovieDetails() {
+export default function TVDetails() {
    const params = useParams();
 
    const [details, setDetails] = useState<{
@@ -65,7 +65,7 @@ export default function MovieDetails() {
          try {
             axios
                .get(
-                  `https://api.themoviedb.org/3/movie/${params.id}?api_key=${key}`
+                  `https://api.themoviedb.org/3/tv/${params.id}?api_key=${key}`
                )
                .then(response => {
                   const details = response.data;
@@ -80,7 +80,7 @@ export default function MovieDetails() {
                      genres: details.genres,
                      voteAvg: Number(details.vote_average.toFixed(1)),
                      voteCount: details.vote_count,
-                     year: details.release_date.slice(0, 4),
+                     year: details.first_air_date.slice(0, 4),
                      overview: details.overview,
                      hours,
                      minutes,
@@ -98,7 +98,7 @@ export default function MovieDetails() {
       const getMovieCredits = () => {
          axios
             .get(
-               `https://api.themoviedb.org/3/movie/${params.id}/credits?api_key=${key}`
+               `https://api.themoviedb.org/3/tv/${params.id}/credits?api_key=${key}`
             )
             .then(response => {
                const creditsCast = response.data.cast;
@@ -119,7 +119,7 @@ export default function MovieDetails() {
       const getMovieVideos = () => {
          axios
             .get(
-               `https://api.themoviedb.org/3/movie/${params.id}/videos?api_key=${key}&append_to_response=videos`
+               `https://api.themoviedb.org/3/tv/${params.id}/videos?api_key=${key}&append_to_response=videos`
             )
             .then(response => {
                const videos = response.data.results;

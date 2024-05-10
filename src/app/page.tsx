@@ -97,6 +97,7 @@ export default function Home() {
             title: string;
             name: string;
          }[];
+         mediaType: string;
       }[]
    >([]);
 
@@ -122,6 +123,7 @@ export default function Home() {
                   first_air_date,
                   known_for_department,
                   known_for,
+                  media_type
                } = query;
 
                const releaseDateObj = new Date(release_date);
@@ -140,6 +142,7 @@ export default function Home() {
                   firstAirYear,
                   knownForDepartment: known_for_department,
                   knownFor: known_for,
+                  mediaType: media_type
                };
             });
 
@@ -224,7 +227,7 @@ export default function Home() {
                                  key={data.id}
                                  className="border-none flex w-full h-auto flex-row items-center bg-blue-900 p-0"
                               >
-                                 <Link href={`/movie/${data.id}`}>
+                                 <Link href={`/${data.mediaType}/${data.id}`}>
                                     <div className="flex flex-wrap gap-x-3">
                                        {data.posterPath || data.profilePath ? (
                                           <Image

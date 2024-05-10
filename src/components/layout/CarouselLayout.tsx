@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ChangeEventHandler, ReactNode, useState } from "react";
 import {
    Carousel,
    CarouselContent,
@@ -24,7 +24,7 @@ interface Props {
    loading: boolean;
    children: ReactNode;
    dialogOpen: boolean;
-   setDialogOpen: () => void;
+   setDialogOpen: (open: boolean) => void;
 }
 
 export default function CarouselLayout({
