@@ -15,7 +15,7 @@ import {
    DialogTitle,
    DialogTrigger,
 } from "@/components/ui/dialog";
-import CarouselItemLayout from "@/components/layout/CarouselItemLayout";
+import CarouselItemContainer from "@/components/container/CarouselItemContainer";
 
 import { LoaderCircle } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
@@ -27,7 +27,7 @@ interface Props {
    setDialogOpen: (open: boolean) => void;
 }
 
-export default function CarouselLayout({
+export default function CarouselContainer({
    loading,
    children,
    dialogOpen,

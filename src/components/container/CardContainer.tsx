@@ -6,29 +6,37 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface Props {
    onClick: () => void;
+   onMouseEnter: () => void;
+   onMouseLeave: () => void;
    loading: boolean;
+   headerStyle: Object;
    year: string;
    voteAverage: number;
    voteCount: number;
    alt: string;
-   posterPath: string;
+   backdropPath: string;
    title: string;
 }
 
-export default function CardMobileLayout({
+export default function CardContainer({
    onClick,
+   onMouseEnter,
+   onMouseLeave,
    loading,
+   headerStyle,
    year,
    voteAverage,
    voteCount,
    alt,
-   posterPath,
+   backdropPath,
    title,
 }: Props) {
    return (
       <Card
          onClick={onClick}
-         className="border-none rounded-xl cursor-pointer flex justify-center items-center lg:hover:scale-125 transition-all"
+         onMouseEnter={onMouseEnter}
+         onMouseLeave={onMouseLeave}
+         className="border-none w-[18rem] xl:w-[350px] h-[50px] xl:h-[200px] rounded-xl cursor-pointer flex justify-center items-center lg:hover:scale-125 transition-all"
       >
          {loading ? (
             <div className="flex flex-col space-y-2 gap-3">
@@ -39,31 +47,32 @@ export default function CardMobileLayout({
          ) : (
             <div>
                <CardHeader
-                  // className="w-[180px] md:w-[289px] xl:w-[350px] h-14 absolute bg-blue-900 bg-opacity-80 rounded-t-xl text-center lg:flex flex-row justify-around items-center animate-flip-down animate-duration-1000 animate-ease-out"
+                  style={headerStyle}
+                  className="w-[180px] md:w-[289px] xl:w-[350px] h-14 absolute bg-blue-900 bg-opacity-80 rounded-t-xl text-center lg:flex flex-row justify-around items-center animate-flip-down animate-duration-1000 animate-ease-out"
                >
-                  {/* <p className="text-blue-600 font-semibold">{year}</p>
+                  <p className="text-blue-600 font-semibold">{year}</p>
 
                   <ul className="flex flex-row items-center gap-2 bg-blue-700 p-2">
                      <li className="text-lg font-semibold text-blue-600">
                         {voteAverage}
                      </li>
                      <li className="text-[12px] text-blue-600">{voteCount}</li>
-                  </ul> */}
+                  </ul>
                </CardHeader>
 
                <Image
-                  className="rounded-xl w-40"
+                  className="rounded-xl w-[18rem] sm:w-[18rem] md:w-[20rem] xl:w-[500px] h-[160px] xl:h-[200px]"
                   alt={alt}
-                  src={`https://image.tmdb.org/t/p/w500/${posterPath}`}
+                  src={`https://image.tmdb.org/t/p/w500/${backdropPath}`}
                   width={500}
                   height={500}
                />
 
-               {/* <CardFooter className="w-[288px] h-14 absolute bg-blue-900 bg-opacity-80 rounded-b-xl text-left text-blue-600 text-md -mt-14 px-5 animate-flip-up animate-duration-1000 animate-ease-out">
+               <CardFooter className="w-[288px] xl:w-[350px] h-14 absolute bg-blue-900 bg-opacity-80 rounded-b-xl text-left text-blue-600 text-md -mt-14 px-5 animate-flip-up animate-duration-1000 animate-ease-out">
                   <CardTitle className="text-blue-600 text-lg">
                      {title}
                   </CardTitle>
-               </CardFooter> */}
+               </CardFooter>
             </div>
          )}
       </Card>

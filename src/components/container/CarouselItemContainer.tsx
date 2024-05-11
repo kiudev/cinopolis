@@ -11,7 +11,7 @@ interface Props {
    onClick: () => void;
 }
 
-export default function CarouselItemLayout({
+export default function CarouselItemContainer({
    title,
    alt,
    backdropPath,

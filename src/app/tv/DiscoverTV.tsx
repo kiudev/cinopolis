@@ -4,7 +4,7 @@ import { key } from "@/app/key";
 
 import { ChangeEvent } from "react";
 import { useMediaQuery } from "usehooks-ts";
-import DiscoverContainer from "@/container/DiscoverContainer";
+import DiscoverLayout from "@/components/layout/DiscoverLayout";
 
 interface Props {
    loading: boolean;
@@ -240,7 +240,7 @@ export default function DiscoverMovies({
    };
 
    return (
-      <DiscoverContainer
+      <DiscoverLayout
          contentType={contentType}
          genres={genres}
          handleGenreClick={handleGenreClick}

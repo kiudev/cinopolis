@@ -135,10 +135,10 @@ export default function MovieDetails() {
    }, []);
 
    return (
-      <main className="flex min-w-screen min-h-screen flex-col items-center justify-between bg-blue-800">
+      <main className="flex min-w-screen min-h-screen flex-col lg:justify-center items-center justify-between bg-blue-800">
          {details ? (
-            <div className="flex flex-col justify-center items-center text-center">
-               <div className="bg-gradient-to-t from-blue-800 from-60% to-transparent w-full h-[18rem] absolute mt-0"></div>
+            <div className="flex flex-col lg:flex-row lg:gap-40 justify-center items-center text-center">
+               <div className="bg-gradient-to-t from-blue-800 from-60% to-transparent w-full h-[18rem] absolute mt-0 lg:mt-[35rem] lg:h-[10rem]"></div>
 
                {mobile ? (
                   <Image
@@ -150,7 +150,7 @@ export default function MovieDetails() {
                   />
                ) : (
                   <Image
-                     className="w-40"
+                     className="w-[400px]"
                      src={`https://image.tmdb.org/t/p/original${details.posterPath}`}
                      width={500}
                      height={500}

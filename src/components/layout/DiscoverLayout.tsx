@@ -41,18 +41,18 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import Autoplay from "embla-carousel-autoplay";
-import CardLayout from "@/components/layout/CardLayout";
-import CarouselItemLayout from "@/components/layout/CarouselItemLayout";
-import { ImageIcon } from "lucide-react";
+import CardContainer from "@/components/container/CardContainer";
+import CarouselItemContainer from "@/components/container/CarouselItemContainer";
+import { ChevronsRight, ImageIcon } from "lucide-react";
 import Image from "next/image";
-import CarouselLayout from "@/components/layout/CarouselLayout";
+import CarouselContainer from "@/components/container/CarouselContainer";
 import { Button } from "@/components/ui/button";
 import {
    SlidersHorizontal,
    ArrowUpNarrowWide,
    ArrowDownWideNarrow,
 } from "lucide-react";
-import CardMobileLayout from "@/components/layout/CardMobileLayout";
+import CardMobileContainer from "@/components/container/CardMobileContainer";
 import Link from "next/link";
 import { ChangeEventHandler, useState } from "react";
 
@@ -103,7 +103,7 @@ interface DiscoverProps {
         };
 }
 
-export default function DiscoverContainer({
+export default function DiscoverLayout({
    contentType,
    genres,
    handleGenreClick,
@@ -262,13 +262,13 @@ export default function DiscoverContainer({
             </Carousel>
          </nav>
 
-         <CarouselLayout
+         <CarouselContainer
             loading={loading}
             dialogOpen={dialogOpen}
             setDialogOpen={handleOpenChange}
          >
             {data.map(movie => (
-               <CarouselItemLayout
+               <CarouselItemContainer
                   key={movie.id}
                   title={movie.title}
                   alt={movie.title}
@@ -277,7 +277,7 @@ export default function DiscoverContainer({
                   voteAvg={movie.voteAverage}
                />
             ))}
-         </CarouselLayout>
+         </CarouselContainer>
 
          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
@@ -285,7 +285,7 @@ export default function DiscoverContainer({
                   {data.map(movie =>
                      mobile ? (
                         <div key={movie.id}>
-                           <CardMobileLayout
+                           <CardMobileContainer
                               onClick={() => handleSelected(movie.id)}
                               loading={loading}
                               year={movie.year}
@@ -298,7 +298,7 @@ export default function DiscoverContainer({
                         </div>
                      ) : (
                         <div key={movie.id}>
-                           <CardLayout
+                           <CardContainer
                               onClick={() => handleSelected(movie.id)}
                               onMouseEnter={() => handleMouseEnter(movie.id)}
                               onMouseLeave={() => setHovered(false)}
@@ -346,10 +346,10 @@ export default function DiscoverContainer({
                      </p>
                   </div>
                   <DialogHeader className="flex flex-col gap-5 w-96 m-auto lg:w-auto">
-                     <DialogTitle className="text-blue-600 font-bold text-3xl md:text-4xl lg:text-6xl flex flex-col gap-5 items-center justify-center lg:justify-start text-center lg:text-left">
+                     <DialogTitle className="text-blue-600 font-bold text-3xl md:text-4xl lg:text-5xl flex flex-col gap-5">
                         <p>{selected.title}</p>
 
-                        <p className="text-xl mt-2">{selected.year}</p>
+                        <p className="text-xl">{selected.year}</p>
                      </DialogTitle>
 
                      <DialogDescription className="text-blue-600 text-opacity-60 text-sm md:text-md text-left">
@@ -392,16 +392,29 @@ export default function DiscoverContainer({
                            </TooltipProvider>
                         ))}
                      </footer>
-                     <Link
-                        className="text-xl text-right"
-                        href={`/${contentType}/${selected.id}`}
-                     >
-                        More details
-                     </Link>
+
+                     <div className="flex flex-row gap-2 justify-end items-center py-20">
+                        <Link
+                           onMouseEnter={() => setHovered(true)}
+                           onMouseLeave={() => setHovered(false)}
+                           className="text-xl text-right"
+                           href={`/${contentType}/${selected.id}`}
+                        >
+                           More details
+                        </Link>
+
+                        <ChevronsRight
+                           style={{
+                              opacity: hovered ? 1 : 0,
+                              transform: hovered ? "translateX(30px)" : "none",
+                           }}
+                           className="absolute mt-0.5 transition-all"
+                        />
+                     </div>
                   </DialogHeader>
                </DialogContent>
             )}
          </Dialog>
       </section>
    );
-};
+}
