@@ -40,33 +40,27 @@ export default function CarouselContainer({
          <div className="bg-gradient-to-b from-blue-800 from-30% to-transparent to-100% w-full h-[100px] absolute z-10 top-32"></div>
 
          <header className="lg:flex hidden">
-            {loading ? (
-               <div className="flex justify-center items-center w-[250px] md:w-[250px] xl:w-[1400px] xl:h-[500px]">
-                  <LoaderCircle className="w-[250px] md:w-[250px] xl:w-[1400px] h-4 xl:h-[100px] text-blue-600 animate-spin" />
-               </div>
-            ) : (
-               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                  <Carousel
-                     plugins={[
-                        Autoplay({
-                           delay: 4000,
-                        }),
-                     ]}
-                     opts={{ align: "start", loop: true }}
-                     className="rounded-xl border border-blue-700 bg-opacity-10 2xl:flex hidden"
-                  >
-                     <DialogTrigger>
-                        <CarouselContent className="2xl:w-[1200px] 2xl:h-[700px]">
-                           {children}
-                        </CarouselContent>
-                     </DialogTrigger>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+               <Carousel
+                  plugins={[
+                     Autoplay({
+                        delay: 4000,
+                     }),
+                  ]}
+                  opts={{ align: "start", loop: true }}
+                  className="rounded-xl border border-blue-700 bg-opacity-10 2xl:flex hidden"
+               >
+                  <DialogTrigger>
+                     <CarouselContent className="2xl:w-[1200px] 2xl:h-[700px]">
+                        {children}
+                     </CarouselContent>
+                  </DialogTrigger>
 
-                     <CarouselPrevious className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20 -mt-32" />
+                  <CarouselPrevious className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20 -mt-32" />
 
-                     <CarouselNext className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20 -mt-32" />
-                  </Carousel>
-               </Dialog>
-            )}
+                  <CarouselNext className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20 -mt-32" />
+               </Carousel>
+            </Dialog>
          </header>
       </>
    );

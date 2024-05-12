@@ -88,9 +88,7 @@ export default function DiscoverMovies({
       } catch (error) {
          console.error("Error loading results", error);
       } finally {
-         setTimeout(() => {
-            setLoading(false);
-         }, 1000);
+         setLoading(false);
       }
    };
 

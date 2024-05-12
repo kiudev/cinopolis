@@ -275,6 +275,7 @@ export default function DiscoverLayout({
                   backdropPath={movie.backdropPath}
                   onClick={() => handleSelected(movie.id)}
                   voteAvg={movie.voteAverage}
+                  loading={loading}
                />
             ))}
          </CarouselContainer>
