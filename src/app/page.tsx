@@ -319,7 +319,7 @@ export default function Home() {
                setCurrentPage={setCurrentPage}
             />
 
-            <p className="text-right xl:absolute right-56 text-wrap text-blue-600 text-opacity-60 mt-8">
+            <p className="text-right xl:absolute right-56 text-wrap text-blue-600 text-opacity-60 mt-8 w-96">
                Built with{" "}
                <a
                   href="https://nextjs.org"
@@ -351,6 +351,14 @@ export default function Home() {
                   className="text-blue-600 hover:underline hover:underline-offset-4"
                >
                   TMDB
+               </a>{" "}
+               and{" "}
+               <a
+                  href="https://www.justwatch.com/"
+                  target="_blank"
+                  className="text-blue-600 hover:underline hover:underline-offset-4"
+               >
+                  JustWatch
                </a>{" "}
                data.
             </p>

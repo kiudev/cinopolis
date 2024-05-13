@@ -22,9 +22,24 @@ import {
    TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import {
+   HoverCard,
+   HoverCardContent,
+   HoverCardTrigger,
+} from "@/components/ui/hover-card";
+
+import {
+   Carousel,
+   CarouselContent,
+   CarouselItem,
+   CarouselNext,
+   CarouselPrevious,
+} from "@/components/ui/carousel";
+
 import { Separator } from "@/components/ui/separator";
 import { useMediaQuery } from "usehooks-ts";
 import { ImageIcon } from "lucide-react";
+import Autoplay from "embla-carousel-autoplay";
 
 export default function MovieDetails() {
    const params = useParams();
@@ -33,13 +48,17 @@ export default function MovieDetails() {
       title: string;
       posterPath: string;
       backdropPath: string;
-      genres: string[];
+      genres: {
+         id: number;
+         name: string;
+      }[];
       voteAvg: number;
       voteCount: number;
       year: string;
       overview: string;
       hours: number;
       minutes: number;
+      tagline: string;
    } | null>(null);
 
    const [creditsCast, setCreditsCast] = useState<
@@ -62,11 +81,36 @@ export default function MovieDetails() {
       }[]
    >([]);
 
+   const [castOverview, setCastOverview] = useState<
+      {
+         id: number;
+         profile_path: string;
+         name: string;
+         character: string;
+         job: string;
+      }[]
+   >([]);
+
+   const [crewOverview, setCrewOverview] = useState<
+      {
+         id: number;
+         profile_path: string;
+         name: string;
+         character: string;
+         job: string;
+      }[]
+   >([]);
+
    const [videos, setVideos] = useState<any[]>([]);
+   const [images, setImages] = useState<any[]>([]);
    const [displayCast, setDisplayCast] = useState<boolean>(false);
    const [displayVideos, setDisplayVideos] = useState<boolean>(false);
    const [displayCrew, setDisplayCrew] = useState<boolean>(false);
    const [displayOverview, setDisplayOverview] = useState<boolean>(true);
+   const [providers, setProviders] = useState<
+      { id: number; logo: string; name: string }[]
+   >([]);
+
    const mobile = useMediaQuery("only screen and (max-width : 1024px)");
 
    useEffect(() => {
@@ -93,6 +137,7 @@ export default function MovieDetails() {
                      overview: details.overview,
                      hours,
                      minutes,
+                     tagline: details.tagline,
                   });
                });
          } catch (error) {
@@ -110,12 +155,23 @@ export default function MovieDetails() {
                `https://api.themoviedb.org/3/movie/${params.id}/credits?api_key=${key}`
             )
             .then(response => {
-               const creditsCast = response.data.cast;
-               setCreditsCast(creditsCast);
+               const cast = response.data.cast;
+               setCreditsCast(cast);
 
-               const creditsCrew = response.data.crew;
-               setCreditsCrew(creditsCrew);
-               console.log(creditsCrew);
+               const filterCast = cast.splice(0, 4);
+               const popularCast = filterCast.sort(
+                  (a: any, b: any) => b.popularity - a.popularity
+               );
+               setCastOverview(popularCast);
+
+               const crew = response.data.crew;
+               setCreditsCrew(crew);
+
+               const director = crew.filter((c: any) => c.job === "Director");
+               const popularDirectors = director.sort(
+                  (a: any, b: any) => (b.popularity = a.popularity)
+               );
+               setCrewOverview(popularDirectors);
             })
             .catch(error => {
                console.error("Error fetching movie credits:", error);
@@ -144,6 +200,51 @@ export default function MovieDetails() {
       getMovieVideos();
    }, []);
 
+   // useEffect(() => {
+   //    const getMovieProviders = () => {
+   //       try {
+   //          axios
+   //             .get(
+   //                `https://api.themoviedb.org/3/movie/${params.id}/watch/providers`
+   //             )
+   //             .then(response => {
+   //                const data = response.data.results.map((providers: any) => ({
+   //                   id: providers.provider_id,
+   //                   logo: providers.logo_path,
+   //                   name: providers.provider_name,
+   //                }));
+
+   //                setProviders(data);
+   //             });
+   //       } catch (error) {
+   //          console.error("Error getting providers " + error);
+   //       }
+   //    };
+
+   //    getMovieProviders();
+   // }, []);
+
+   useEffect(() => {
+      const getMovieImages = () => {
+         axios
+            .get(
+               `https://api.themoviedb.org/3/movie/${params.id}/images?api_key=${key}`
+            )
+            .then(response => {
+               const images = response.data.backdrops;
+               const popularImages = images.sort(
+                  (a: any, b: any) => b.vote_average - a.vote_average
+               );
+               setImages(popularImages);
+            })
+            .catch(error => {
+               console.error("Error fetching movie images:", error);
+            });
+      };
+
+      getMovieImages();
+   }, []);
+
    return (
       <main className="flex min-w-screen min-h-screen flex-col lg:m-auto items-center justify-between bg-blue-800 lg:py-10">
          {details ? (
@@ -162,7 +263,7 @@ export default function MovieDetails() {
                   <div className="fixed top-10 -ml-[800px]">
                      <Image
                         className="w-[300px]"
-                        src={`https://image.tmdb.org/t/p/original${details.posterPath}`}
+                        src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
                         width={500}
                         height={500}
                         alt={details.title}
@@ -170,15 +271,33 @@ export default function MovieDetails() {
                   </div>
                )}
 
-               <Card className="flex flex-col space-x-reverse justify-center items-center text-blue-600 border-none gap-5 mt-10 lg:mt-0 z-10 w-96 lg:w-[800px] lg:ml-[300px] lg:bg-blue-900 lg:p-10">
+               <Card className="flex flex-col space-x-reverse justify-center items-center text-blue-600 border-none gap-5 mt-10 lg:mt-0 z-10 w-96 lg:w-[800px] lg:ml-[300px] lg:bg-gradient-to-t lg:from-blue-800 lg:to-blue-900 lg:p-10">
                   <CardHeader className="flex flex-col gap-5 w-full">
-                     <CardTitle className="font-semibold">
+                     <CardTitle className="flex justify-between font-semibold">
                         <h1 className="text-4xl lg:text-left">
                            {details.title}
                         </h1>
+
+                        <p className="flex flex-row items-center gap-2 text-3xl">
+                           {details.voteAvg}
+                           <Star className="w-7 h-7" />
+                        </p>
                      </CardTitle>
 
-                     <div className="flex flex-row justify-center items-center text-blue-700 text-opacity-60 gap-2 lg:justify-start">
+                     <div className="flex flex-row justify-center items-center text-blue-600 text-opacity-60 gap-2 lg:justify-start">
+                        {details.genres.map(genre => (
+                           <div
+                              className="bg-blue-700 text-blue-600 px-2 rounded-xl"
+                              key={genre.id}
+                           >
+                              {genre.name}
+                           </div>
+                        ))}
+                        <Separator
+                           className="bg-blue-700 w-0.5 h-5"
+                           orientation="vertical"
+                        />
+
                         <p>{details.year}</p>
                         <Separator
                            className="bg-blue-700 w-0.5 h-5"
@@ -186,19 +305,10 @@ export default function MovieDetails() {
                         />
 
                         <p>{`${details.hours}h ${details.minutes}m`}</p>
-                        <Separator
-                           className="bg-blue-700 w-0.5 h-5"
-                           orientation="vertical"
-                        />
-
-                        <p className="flex flex-row items-center gap-2">
-                           {details.voteAvg}
-                           <Star className="w-5 h-5" />
-                        </p>
                      </div>
                   </CardHeader>
 
-                  <ul className="flex flex-row gap-5 justify-evenly lg:justify-start lg:gap-10 w-full">
+                  <ul className="flex flex-row gap-5 justify-evenly lg:justify-start lg:gap-10 w-full mt-5">
                      <li
                         onClick={() => {
                            setDisplayOverview(true);
@@ -211,7 +321,9 @@ export default function MovieDetails() {
                               ? "text-blue-600"
                               : "text-blue-600, text-opacity-60"
                         } cursor-pointer ${
-                           displayOverview ? "hover:text-blue-600" : "text-blue-600"
+                           displayOverview
+                              ? "hover:text-blue-600"
+                              : "text-blue-600"
                         } hover:text-blue-600 transition-all lg:text-2xl`}
                      >
                         Overview
@@ -274,7 +386,7 @@ export default function MovieDetails() {
                   {displayCast ? (
                      <CardContent className="">
                         {creditsCast ? (
-                           <div className="grid grid-cols-2 lg:grid-cols-7 gap-5">
+                           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
                               {creditsCast.map(cast => (
                                  <div
                                     key={cast.id}
@@ -292,37 +404,20 @@ export default function MovieDetails() {
                                           <p className="w-20">{cast.name}</p>
                                        </div>
                                     ) : (
-                                       <TooltipProvider delayDuration={100}>
-                                          <Tooltip key={cast.id}>
-                                             <TooltipTrigger asChild>
-                                                {cast.profile_path ? (
-                                                   <div className="relative max-w-xs overflow-hidden bg-cover bg-no-repeat">
-                                                      <Image
-                                                         className="transition duration-300 ease-in-out hover:scale-110 w-20"
-                                                         alt={cast.name}
-                                                         src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
-                                                         width={500}
-                                                         height={500}
-                                                      />
-                                                   </div>
-                                                ) : (
-                                                   <ImageIcon className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-36 bg-blue-900" />
-                                                )}
-                                             </TooltipTrigger>
-
-                                             <TooltipContent
-                                                side="bottom"
-                                                className="border-none shadow-none bg-blue-800"
-                                             >
-                                                <p className="font-semibold text-lg">
-                                                   {cast.name}
-                                                </p>
-                                                <p className="text-blue-600 text-opacity-60">
-                                                   {cast.character}
-                                                </p>
-                                             </TooltipContent>
-                                          </Tooltip>
-                                       </TooltipProvider>
+                                       <HoverCard>
+                                          <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
+                                             {cast.name}
+                                          </HoverCardTrigger>
+                                          <HoverCardContent className="border-none rounded-xl bg-blue-700 text-blue-600">
+                                             <Image
+                                                className="w-20"
+                                                alt={cast.name}
+                                                src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
+                                                width={500}
+                                                height={500}
+                                             />
+                                          </HoverCardContent>
+                                       </HoverCard>
                                     )}
                                  </div>
                               ))}
@@ -333,7 +428,7 @@ export default function MovieDetails() {
                      </CardContent>
                   ) : displayVideos ? (
                      <CardContent>
-                        <div className="flex flex-row flex-wrap">
+                        <div className="grid grid-cols-2 gap-5">
                            {videos.map(video => (
                               <div key={video.id}>
                                  <p>{video.name}</p>
@@ -366,44 +461,108 @@ export default function MovieDetails() {
                                     <p className="w-20">{cast.name}</p>
                                  </div>
                               ) : (
-                                 <TooltipProvider delayDuration={100}>
-                                    <Tooltip key={cast.id}>
-                                       <TooltipTrigger asChild>
-                                          {cast.profile_path ? (
-                                             <div className="relative max-w-xs overflow-hidden bg-cover bg-no-repeat">
-                                                <Image
-                                                   className="transition duration-300 ease-in-out hover:scale-110 w-20"
-                                                   alt={cast.name}
-                                                   src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
-                                                   width={500}
-                                                   height={500}
-                                                />
-                                             </div>
-                                          ) : (
-                                             <ImageIcon className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-36 bg-blue-900" />
-                                          )}
-                                       </TooltipTrigger>
-
-                                       <TooltipContent
-                                          side="bottom"
-                                          className="border-none shadow-none bg-blue-800"
-                                       >
-                                          <p className="font-semibold text-lg">
-                                             {cast.name}
-                                          </p>
-                                          <p className="text-blue-600 text-opacity-60">
-                                             {cast.character}
-                                          </p>
-                                       </TooltipContent>
-                                    </Tooltip>
-                                 </TooltipProvider>
+                                 <HoverCard>
+                                    <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
+                                       {cast.name}
+                                    </HoverCardTrigger>
+                                    <HoverCardContent className="border-none rounded-xl bg-blue-700 text-blue-600">
+                                       <Image
+                                          className="w-20"
+                                          alt={cast.name}
+                                          src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
+                                          width={500}
+                                          height={500}
+                                       />
+                                    </HoverCardContent>
+                                 </HoverCard>
                               )}
                            </div>
                         ))}
                      </div>
                   ) : displayOverview ? (
                      <CardDescription className="text-left text-md lg:w-full">
+                        <p className="italic text-blue-600 text-opacity-60 mb-3">
+                           {`"` + details.tagline + `"`}
+                        </p>
                         <p>{details.overview}</p>
+
+                        <div className="flex flex-row gap-5 mt-5">
+                           <p className="text-blue-600 text-opacity-60 mr-5">
+                              Starring
+                           </p>
+                           {castOverview.map(cast => (
+                              <div key={cast.id}>
+                                 <HoverCard>
+                                    <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
+                                       {cast.name}
+                                    </HoverCardTrigger>
+                                    <HoverCardContent className="border-none rounded-xl bg-blue-900 text-blue-600">
+                                       <Image
+                                          className="w-20"
+                                          alt={cast.name}
+                                          src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
+                                          width={500}
+                                          height={500}
+                                       />
+                                    </HoverCardContent>
+                                 </HoverCard>
+                              </div>
+                           ))}
+                        </div>
+
+                        <div className="flex flex-row gap-5 mt-5">
+                           <p className="text-blue-600 text-opacity-60 mr-5">
+                              Director
+                           </p>
+                           {crewOverview.map(director => (
+                              <div key={director.id}>
+                                 <HoverCard>
+                                    <HoverCardTrigger className="cursor-pointer">
+                                       {director.name}
+                                    </HoverCardTrigger>
+                                    <HoverCardContent className="border-none rounded-xl bg-blue-900 text-blue-600">
+                                       <Image
+                                          className="w-20"
+                                          alt={director.name}
+                                          src={`https://image.tmdb.org/t/p/w185${director.profile_path}`}
+                                          width={500}
+                                          height={500}
+                                       />
+                                    </HoverCardContent>
+                                 </HoverCard>{" "}
+                              </div>
+                           ))}
+                        </div>
+
+                        <Carousel
+                        plugins={[
+                           Autoplay({
+                              delay: 4000,
+                           }),
+                        ]}
+                           opts={{ slidesToScroll: 2, align: "start",
+                           loop: true, }}
+                           className="flex flex-row items-center justify-center w-[710px] h-60 mt-10"
+                        >
+                           <CarouselContent className="">
+                              {images.map(image => (
+                                 <CarouselItem
+                                    className="basis-1/2 flex justify-center items-center"
+                                    key={image.id}
+                                 >
+                                    <Image
+                                       className="w-80"
+                                       alt={image.name}
+                                       src={`https://image.tmdb.org/t/p/w780${image.file_path}`}
+                                       width={500}
+                                       height={500}
+                                    />
+                                 </CarouselItem>
+                              ))}
+                           </CarouselContent>
+                           <CarouselPrevious className="ml-5" />
+                           <CarouselNext className="mr-5" />
+                        </Carousel>
                      </CardDescription>
                   ) : (
                      <div></div>

@@ -356,7 +356,7 @@ export default function DiscoverLayout({
                      <DialogDescription className="text-blue-600 text-opacity-60 text-sm md:text-md text-left">
                         {selected.overview}
                      </DialogDescription>
-                     <footer className="flex flex-row items-center">
+                     <footer className="flex flex-row items-center gap-5">
                         {selected.cast?.map(actor => (
                            <TooltipProvider delayDuration={100}>
                               {mobile ? (
@@ -365,15 +365,19 @@ export default function DiscoverLayout({
                                  <Tooltip key={actor.id}>
                                     <TooltipTrigger asChild>
                                        {actor.profilePath ? (
+                                          <div className="relative max-w-xs overflow-hidden bg-cover bg-no-repeat">
                                           <Image
-                                             className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-40"
+                                             className="duration-300 ease-in-out hover:scale-110 w-28 px-2"
                                              alt={actor.name}
                                              src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
                                              width={500}
                                              height={500}
                                           />
+                                          </div>
                                        ) : (
-                                          <ImageIcon className="w-28 p-2 rounded-xl row-span-3 ml-5 hover:scale-125 transition-all h-36 bg-blue-900" />
+                                          <div className="relative max-w-xs overflow-hidden bg-cover bg-no-repeat">
+                                          <ImageIcon className="duration-300 ease-in-out hover:scale-110 w-28 h-36 px-2 bg-blue-900" />
+                                          </div>
                                        )}
                                     </TooltipTrigger>
 

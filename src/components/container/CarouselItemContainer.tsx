@@ -26,7 +26,7 @@ export default function CarouselItemContainer({
             <div className="z-20 text-4xl text-blue-600 absolute top-0 bottom-0 right-0 left-0">Loading...</div>
          ) : (
             <Image
-               className="rounded-xl 2xl:w-[1200px] 2xl:h-[650px] 2xl:flex hidden"
+               className="rounded-xl 2xl:w-[1000px] 2xl:h-[550px] 2xl:flex hidden"
                alt={alt}
                src={`https://image.tmdb.org/t/p/w1280/${backdropPath}`}
                width={1500}

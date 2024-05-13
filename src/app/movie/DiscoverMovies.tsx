@@ -128,26 +128,6 @@ export default function DiscoverMovies({
       }
    };
 
-   // const getMovieProviders = (id: number) => {
-   //    try {
-   //       axios
-   //          .get(
-   //             `https://api.themoviedb.org/3/movie/${id}/watch/providers`
-   //          )
-   //          .then(response => {
-   //             const data = response.data.results.map((providers: any) => ({
-   //                id: providers.provider_id,
-   //                logo: providers.logo_path,
-   //                name: providers.provider_name,
-   //             }));
-
-   //             setProviders(data);
-   //          });
-   //    } catch (error) {
-   //       console.error("Error getting providers " + error);
-   //    }
-   // };
-
    const handleMouseEnter = (id: number) => {
       setHovered(id);
    };
@@ -159,7 +139,6 @@ export default function DiscoverMovies({
          getCast(id);
          setSelected(resultFound);
          setDialogOpen(true);
-         // getMovieProviders(id);
       }
    };
 
@@ -217,14 +196,7 @@ export default function DiscoverMovies({
                   logo: providers.logo_path,
                   name: providers.provider_name,
                }));
-               // const filterProviders = data.filter((p: any) =>
-               //    [
-               //       "Netflix",
-               //       "HBO Max",
-               //       "Amazon Prime Video",
-               //       "Apple TV",
-               //    ].includes(p.name)
-               // );
+
                setProviders(data);
             });
       } catch (error) {

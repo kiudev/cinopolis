@@ -40,6 +40,7 @@ export default function TVDetails() {
       overview: string;
       hours: number;
       minutes: number;
+      tagline: string;
    } | null>(null);
 
    const [creditsCast, setCreditsCast] = useState<
@@ -82,7 +83,7 @@ export default function TVDetails() {
                   const runtimeMinutes = details.runtime;
                   const hours = Math.floor(runtimeMinutes / 60);
                   const minutes = runtimeMinutes % 60;
-
+                  
                   setDetails({
                      title: details.title,
                      posterPath: details.poster_path,
@@ -94,13 +95,14 @@ export default function TVDetails() {
                      overview: details.overview,
                      hours,
                      minutes,
+                     tagline: details.tagline
                   });
                });
          } catch (error) {
             console.error(error);
          }
       };
-
+      
       getMovieDetails();
    }, []);
 
@@ -403,7 +405,15 @@ export default function TVDetails() {
                      </div>
                   ) : displayOverview ? (
                      <CardDescription className="text-left text-md lg:w-full">
-                        <p>{details.overview}</p>
+                        <ul>
+                           <li>{details.tagline}</li>
+                           <li>{details.overview}</li>
+                           {creditsCast.map(cast => (
+                              <li key={cast.id}>{cast.character}</li>
+                           ))}
+                           <li>{details.genres}</li>
+                        </ul>
+                        <p>Hello</p>
                      </CardDescription>
                   ) : (
                      <div></div>

@@ -51,7 +51,7 @@ export default function CarouselContainer({
                   className="rounded-xl border border-blue-700 bg-opacity-10 2xl:flex hidden"
                >
                   <DialogTrigger>
-                     <CarouselContent className="2xl:w-[1200px] 2xl:h-[700px]">
+                     <CarouselContent className="2xl:w-[1000px] 2xl:h-[700px]">
                         {children}
                      </CarouselContent>
                   </DialogTrigger>
