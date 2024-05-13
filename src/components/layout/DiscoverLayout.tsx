@@ -367,7 +367,7 @@ export default function DiscoverLayout({
                                        {actor.profilePath ? (
                                           <div className="relative max-w-xs overflow-hidden bg-cover bg-no-repeat">
                                           <Image
-                                             className="duration-300 ease-in-out hover:scale-110 w-28 px-2"
+                                             className="duration-300 ease-in-out hover:scale-[1.15] w-28 px-2"
                                              alt={actor.name}
                                              src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
                                              width={500}

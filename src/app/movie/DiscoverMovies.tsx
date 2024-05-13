@@ -67,7 +67,7 @@ export default function DiscoverMovies({
             .get(
                `https://api.themoviedb.org/3/discover/${contentType}?api_key=${key}&page=${pageNumber}&with_genres=${selectedGenres}&vote_average.gte=${voteAvg}&sort_by=${voteCount}${
                   "" || "&with_watch_providers="
-               }${selectedProvider || ""}&watch_region=ES&language=es-ES`
+               }${selectedProvider || ""}&watch_region=ES&language=en-US`
             )
             .then(response => {
                const results = response.data.results.map((data: any) => ({

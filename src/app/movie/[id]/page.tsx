@@ -393,16 +393,20 @@ export default function MovieDetails() {
                                     className="flex flex-row justify-center gap-2"
                                  >
                                     {mobile ? (
-                                       <div>
-                                          <Image
-                                             className="w-20 rounded-xl"
-                                             src={`https://image.tmdb.org/t/p/w500${cast.profile_path}`}
-                                             width={500}
-                                             height={500}
-                                             alt={cast.name}
-                                          />
-                                          <p className="w-20">{cast.name}</p>
-                                       </div>
+                                       <HoverCard>
+                                          <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
+                                             {cast.name}
+                                          </HoverCardTrigger>
+                                          <HoverCardContent className="border-none rounded-xl bg-blue-700 text-blue-600">
+                                             <Image
+                                                className="w-20"
+                                                alt={cast.name}
+                                                src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
+                                                width={500}
+                                                height={500}
+                                             />
+                                          </HoverCardContent>
+                                       </HoverCard>
                                     ) : (
                                        <HoverCard>
                                           <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
@@ -450,16 +454,20 @@ export default function MovieDetails() {
                               className="flex flex-row justify-center gap-2"
                            >
                               {mobile ? (
-                                 <div>
-                                    <Image
-                                       className="w-20 rounded-xl"
-                                       src={`https://image.tmdb.org/t/p/w500${cast.profile_path}`}
-                                       width={500}
-                                       height={500}
-                                       alt={cast.name}
-                                    />
-                                    <p className="w-20">{cast.name}</p>
-                                 </div>
+                                 <HoverCard>
+                                    <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
+                                       {cast.name}
+                                    </HoverCardTrigger>
+                                    <HoverCardContent className="border-none rounded-xl bg-blue-700 text-blue-600">
+                                       <Image
+                                          className="w-20"
+                                          alt={cast.name}
+                                          src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
+                                          width={500}
+                                          height={500}
+                                       />
+                                    </HoverCardContent>
+                                 </HoverCard>
                               ) : (
                                  <HoverCard>
                                     <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
@@ -480,13 +488,13 @@ export default function MovieDetails() {
                         ))}
                      </div>
                   ) : displayOverview ? (
-                     <CardDescription className="text-left text-md lg:w-full">
+                     <CardDescription className="text-left text-md w-full h-full">
                         <p className="italic text-blue-600 text-opacity-60 mb-3">
                            {`"` + details.tagline + `"`}
                         </p>
                         <p>{details.overview}</p>
 
-                        <div className="flex flex-row gap-5 mt-5">
+                        <div className="flex flex-row gap-5 mt-5 flex-wrap">
                            <p className="text-blue-600 text-opacity-60 mr-5">
                               Starring
                            </p>
@@ -510,7 +518,7 @@ export default function MovieDetails() {
                            ))}
                         </div>
 
-                        <div className="flex flex-row gap-5 mt-5">
+                        <div className="flex flex-row gap-5 mt-5 flex-wrap">
                            <p className="text-blue-600 text-opacity-60 mr-5">
                               Director
                            </p>
@@ -533,36 +541,73 @@ export default function MovieDetails() {
                               </div>
                            ))}
                         </div>
-
-                        <Carousel
-                        plugins={[
-                           Autoplay({
-                              delay: 4000,
-                           }),
-                        ]}
-                           opts={{ slidesToScroll: 2, align: "start",
-                           loop: true, }}
-                           className="flex flex-row items-center justify-center w-[710px] h-60 mt-10"
-                        >
-                           <CarouselContent className="">
-                              {images.map(image => (
-                                 <CarouselItem
-                                    className="basis-1/2 flex justify-center items-center"
-                                    key={image.id}
-                                 >
-                                    <Image
-                                       className="w-80"
-                                       alt={image.name}
-                                       src={`https://image.tmdb.org/t/p/w780${image.file_path}`}
-                                       width={500}
-                                       height={500}
-                                    />
-                                 </CarouselItem>
-                              ))}
-                           </CarouselContent>
-                           <CarouselPrevious className="ml-5" />
-                           <CarouselNext className="mr-5" />
-                        </Carousel>
+                        {mobile ? (
+                           <Carousel
+                              plugins={[
+                                 Autoplay({
+                                    delay: 4000,
+                                 }),
+                              ]}
+                              opts={{
+                                 slidesToScroll: 1,
+                                 align: "start",
+                                 loop: true,
+                              }}
+                              className="w-full mt-10 mb-10"
+                           >
+                              <CarouselContent className="">
+                                 {images.map(image => (
+                                    <CarouselItem
+                                       className="basis-1/2 flex justify-center items-center"
+                                       key={image.id}
+                                    >
+                                       <Image
+                                          className="w-80"
+                                          alt={image.name}
+                                          src={`https://image.tmdb.org/t/p/w780${image.file_path}`}
+                                          width={500}
+                                          height={500}
+                                       />
+                                    </CarouselItem>
+                                 ))}
+                              </CarouselContent>
+                              <CarouselPrevious className="" />
+                              <CarouselNext className="" />
+                           </Carousel>
+                        ) : (
+                           <Carousel
+                              plugins={[
+                                 Autoplay({
+                                    delay: 4000,
+                                 }),
+                              ]}
+                              opts={{
+                                 slidesToScroll: 2,
+                                 align: "start",
+                                 loop: true,
+                              }}
+                              className="flex flex-row items-center justify-center w-[710px] h-60 mt-10"
+                           >
+                              <CarouselContent className="">
+                                 {images.map(image => (
+                                    <CarouselItem
+                                       className="basis-1/2 flex justify-center items-center"
+                                       key={image.id}
+                                    >
+                                       <Image
+                                          className="w-80"
+                                          alt={image.name}
+                                          src={`https://image.tmdb.org/t/p/w780${image.file_path}`}
+                                          width={500}
+                                          height={500}
+                                       />
+                                    </CarouselItem>
+                                 ))}
+                              </CarouselContent>
+                              <CarouselPrevious className="ml-5" />
+                              <CarouselNext className="mr-5" />
+                           </Carousel>
+                        )}
                      </CardDescription>
                   ) : (
                      <div></div>

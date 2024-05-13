@@ -69,7 +69,7 @@ export default function CardContainer({
                      height={500}
                   />
                ) : (
-                     <ImageIcon className="rounded-xl w-[18rem] sm:w-[18rem] md:w-[20rem] xl:w-[350px] h-[160px] xl:h-[200px] transition duration-300 ease-in-out hover:scale-[1.15] text-blue-600 bg-blue-900" />
+                  <ImageIcon className="rounded-xl w-[18rem] sm:w-[18rem] md:w-[20rem] xl:w-[350px] h-[160px] xl:h-[200px] transition duration-300 ease-in-out hover:scale-[1.15] text-blue-600 bg-blue-900 p-10" />
                )}
 
                <CardFooter className="w-[288px] xl:w-[350px] h-14 absolute bg-blue-900 bg-opacity-80 rounded-b-xl text-left text-blue-600 text-md -mt-14 px-5 animate-flip-up animate-duration-1000 animate-ease-out">
