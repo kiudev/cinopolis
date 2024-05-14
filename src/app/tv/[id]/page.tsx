@@ -4,7 +4,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { key } from "@/app/key";
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { SearchSlashIcon, Star } from "lucide-react";
 
 import {
    Card,
@@ -36,10 +36,18 @@ import {
    CarouselPrevious,
 } from "@/components/ui/carousel";
 
+import {
+   Accordion,
+   AccordionContent,
+   AccordionItem,
+   AccordionTrigger,
+} from "@/components/ui/accordion";
+
 import { Separator } from "@/components/ui/separator";
 import { useMediaQuery } from "usehooks-ts";
 import { ImageIcon } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
+import { setFlagsFromString } from "v8";
 
 export default function TVDetails() {
    const params = useParams();
@@ -59,8 +67,18 @@ export default function TVDetails() {
       hours: number;
       minutes: number;
       tagline: string;
-      seasons: number;
-      episodes: number;
+      numberSeasons: number;
+      numberEpisodes: number;
+      seasons: {
+         id: number;
+         air_date: string;
+         episode_count: number;
+         name: string;
+         overview: string;
+         poster_path: string;
+         vote_average: number;
+         season_number: number;
+      }[];
    } | null>(null);
 
    const [creditsCast, setCreditsCast] = useState<
@@ -103,12 +121,16 @@ export default function TVDetails() {
       }[]
    >([]);
 
+   const [episodes, setEpisodes] = useState<any[]>([]);
+
    const [videos, setVideos] = useState<any[]>([]);
    const [images, setImages] = useState<any[]>([]);
    const [displayCast, setDisplayCast] = useState<boolean>(false);
    const [displayVideos, setDisplayVideos] = useState<boolean>(false);
    const [displayCrew, setDisplayCrew] = useState<boolean>(false);
    const [displayOverview, setDisplayOverview] = useState<boolean>(true);
+   const [displayEpisodes, setDisplayEpisodes] = useState<boolean>(false);
+   const [seasonNumber, setSeasonNumber] = useState<number>(0);
 
    const mobile = useMediaQuery("only screen and (max-width : 1024px)");
 
@@ -124,6 +146,10 @@ export default function TVDetails() {
                   const runtimeMinutes = details.runtime;
                   const hours = Math.floor(runtimeMinutes / 60);
                   const minutes = runtimeMinutes % 60;
+                  const seasons = details.seasons;
+                  const sortSeasons = seasons.sort(
+                     (a: any, b: any) => a.season_number - b.season_number
+                  );
 
                   setDetails({
                      title: details.name,
@@ -137,8 +163,9 @@ export default function TVDetails() {
                      hours,
                      minutes,
                      tagline: details.tagline,
-                     seasons: details.number_of_seasons,
-                     episodes: details.number_of_episodes,
+                     numberSeasons: details.number_of_seasons,
+                     numberEpisodes: details.number_of_episodes,
+                     seasons: sortSeasons,
                   });
                });
          } catch (error) {
@@ -224,6 +251,33 @@ export default function TVDetails() {
       getMovieImages();
    }, []);
 
+
+
+   useEffect(() => {
+      const getEpisodes = () => {
+         axios
+            .get(
+               `https://api.themoviedb.org/3/tv/${params.id}/season/${seasonNumber}?api_key=${key}`
+            )
+            .then(response => {
+               const episodesData = response.data.episodes;
+               const runtimeMinutes = episodesData.runtime;
+               const hours = Math.floor(runtimeMinutes / 60);
+               const minutes = runtimeMinutes % 60;
+               const sortEpisodes = episodesData.sort(
+                  (a: any, b: any) => a.episode_number - b.episode_number
+               );
+
+               setEpisodes(episodesData);
+            })
+            .catch(error => {
+               console.error("Error fetching episodes:", error);
+            });
+      };
+
+      getEpisodes();
+   }, [seasonNumber]);
+
    return (
       <main className="flex min-w-screen min-h-screen flex-col lg:m-auto items-center justify-between bg-blue-800 lg:py-10">
          {details ? (
@@ -283,7 +337,7 @@ export default function TVDetails() {
                            orientation="vertical"
                         />
 
-                        <p>{`${details.seasons} seasons. ${details.episodes} episodes.`}</p>
+                        <p>{`${details.numberSeasons} seasons. ${details.numberEpisodes} episodes.`}</p>
                      </div>
                   </CardHeader>
 
@@ -294,6 +348,7 @@ export default function TVDetails() {
                            setDisplayCast(false);
                            setDisplayVideos(false);
                            setDisplayCrew(false);
+                           setDisplayEpisodes(false);
                         }}
                         className={`text-xl font-semibold ${
                            displayOverview
@@ -309,10 +364,31 @@ export default function TVDetails() {
                      </li>
                      <li
                         onClick={() => {
+                           setDisplayEpisodes(true);
+                           setDisplayOverview(false);
+                           setDisplayCast(false);
+                           setDisplayVideos(false);
+                           setDisplayCrew(false);
+                        }}
+                        className={`text-xl font-semibold ${
+                           displayEpisodes
+                              ? "text-blue-600"
+                              : "text-blue-600, text-opacity-60"
+                        } cursor-pointer ${
+                           displayEpisodes
+                              ? "hover:text-blue-600"
+                              : "text-blue-600"
+                        } hover:text-blue-600 transition-all lg:text-2xl`}
+                     >
+                        Episodes
+                     </li>
+                     <li
+                        onClick={() => {
                            setDisplayCast(true);
                            setDisplayVideos(false);
                            setDisplayCrew(false);
                            setDisplayOverview(false);
+                           setDisplayEpisodes(false);
                         }}
                         className={`text-xl font-semibold ${
                            displayCast
@@ -330,6 +406,7 @@ export default function TVDetails() {
                            setDisplayVideos(false);
                            setDisplayCrew(true);
                            setDisplayOverview(false);
+                           setDisplayEpisodes(false);
                         }}
                         className={`text-xl font-semibold ${
                            displayCrew
@@ -347,6 +424,7 @@ export default function TVDetails() {
                            setDisplayVideos(true);
                            setDisplayCrew(false);
                            setDisplayOverview(false);
+                           setDisplayEpisodes(false);
                         }}
                         className={`text-xl font-semibold ${
                            displayVideos
@@ -589,10 +667,79 @@ export default function TVDetails() {
                         )}
                      </CardDescription>
                   ) : (
-                     <div></div>
-                  )}
+                     displayEpisodes && (
+                        <Accordion type="single" collapsible className="w-full">
+                           {details.seasons.map(season => (
+                              <AccordionItem
+                                 key={season.id}
+                                 value={season.name}
+                              >
+                                 <AccordionTrigger
+                                    onClick={() =>
+                                       setSeasonNumber(season.season_number)
+                                    }
+                                    className="flex flex-row justify-between items-center"
+                                 >
+                                    <p className="text-md font-semibold">{season.name}</p>
+                                    <p className="text-lg absolute left-[50rem] right-0">{season.vote_average}</p>
+                                 </AccordionTrigger>
+                                 <AccordionContent className="flex flex-col justify-start items-center w-full text-left gap-5">
+                                    <header className="text-md">
+                                       {season.overview}
+                                    </header>
 
-                  {}
+                                    <Accordion
+                                       type="single"
+                                       collapsible
+                                       className="flex flex-col justify-between bg-blue-600 bg-opacity-20 w-full px-5"
+                                    >
+                                       {episodes.map(episode => (
+                                          <AccordionItem
+                                             value={episode.name}
+                                             key={episode.id}
+                                          >
+                                             <AccordionTrigger className="flex flex-row items-center justify-between gap-2">
+                                                <ul className="flex flex-row items-center gap-5">
+                                                   <li className="text-md">
+                                                      {episode.episode_number +
+                                                         "."}
+                                                   </li>
+                                                   <li className="text-md font-semibold">
+                                                      {episode.name}
+                                                   </li>
+                                                </ul>
+                                                <p className="text-lg absolute left-[50rem] right-0">
+                                                   {episode.vote_average}
+                                                </p>
+                                             </AccordionTrigger>
+
+                                             <AccordionContent className="grid grid-cols-2">
+                                                <Image
+                                                   className="w-80 shadow-xl rounded-xl"
+                                                   src={`https://image.tmdb.org/t/p/w500${episode.still_path}`}
+                                                   width={500}
+                                                   height={500}
+                                                   alt={details.title}
+                                                />
+                                                <ul className="flex flex-col items-center">
+                                                   <div className="flex flex-row items-center justify-between w-full">
+                                                      <li className="text-lg">
+                                                         {episode.runtime +
+                                                            "min"}
+                                                      </li>
+                                                   </div>
+                                                   <li>{episode.overview}</li>
+                                                </ul>
+                                             </AccordionContent>
+                                          </AccordionItem>
+                                       ))}
+                                    </Accordion>
+                                 </AccordionContent>
+                              </AccordionItem>
+                           ))}
+                        </Accordion>
+                     )
+                  )}
                </Card>
             </div>
          ) : (
