@@ -230,7 +230,7 @@ export default function TVDetails() {
             .get(
                `/api/tv/tvEpisodes`, {
                   params: {
-                     id: params.id,
+                     id: params?.id,
                      seasonNumber: seasonNumber
                   }
                }
