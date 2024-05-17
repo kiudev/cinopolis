@@ -135,140 +135,109 @@ export default function TVDetails() {
    const mobile = useMediaQuery("only screen and (max-width : 1024px)");
 
    useEffect(() => {
-      const getMovieDetails = () => {
+      const getTVDetails = async () => {
          try {
-            axios
-               .get(
-                  `https://api.themoviedb.org/3/tv/${params.id}?api_key=${key}`
-               )
+            await axios
+               .get(`/api/tv/tvDetails`, {
+                  params: {
+                     id: params.id,
+                  },
+               })
                .then(response => {
-                  const details = response.data;
-                  const runtimeMinutes = details.runtime;
-                  const hours = Math.floor(runtimeMinutes / 60);
-                  const minutes = runtimeMinutes % 60;
-                  const seasons = details.seasons;
-                  const sortSeasons = seasons.sort(
-                     (a: any, b: any) => a.season_number - b.season_number
-                  );
-
-                  setDetails({
-                     title: details.name,
-                     posterPath: details.poster_path,
-                     backdropPath: details.backdrop_path,
-                     genres: details.genres,
-                     voteAvg: Number(details.vote_average.toFixed(1)),
-                     voteCount: details.vote_count,
-                     year: details.first_air_date.slice(0, 4),
-                     overview: details.overview,
-                     hours,
-                     minutes,
-                     tagline: details.tagline,
-                     numberSeasons: details.number_of_seasons,
-                     numberEpisodes: details.number_of_episodes,
-                     seasons: sortSeasons,
-                  });
+                  setDetails(response.data);
                });
          } catch (error) {
             console.error(error);
          }
       };
 
-      getMovieDetails();
+      getTVDetails();
    }, []);
 
    useEffect(() => {
-      const getMovieCredits = () => {
-         axios
+      const getTVCredits = async () => {
+         await axios
             .get(
-               `https://api.themoviedb.org/3/tv/${params.id}/credits?api_key=${key}`
+               `/api/tv/tvCredits`, {
+                  params: {
+                     id: params.id
+                  }
+               }
             )
             .then(response => {
-               const cast = response.data.cast;
-               setCreditsCast(cast);
+               const credits = response.data;
 
-               const filterCast = cast.splice(0, 4);
-               const popularCast = filterCast.sort(
-                  (a: any, b: any) => b.popularity - a.popularity
-               );
-               setCastOverview(popularCast);
+               setCreditsCast(credits.cast);
 
-               const crew = response.data.crew;
-               setCreditsCrew(crew);
+               setCastOverview(credits.popularCast);
 
-               const director = crew.filter(
-                  (c: any) => c.job === "Executive Producer"
-               );
-               const popularDirectors = director.sort(
-                  (a: any, b: any) => (b.popularity = a.popularity)
-               );
-               setCrewOverview(popularDirectors);
+               setCreditsCrew(credits.crew);
+
+               setCrewOverview(credits.popularProducer);
             })
             .catch(error => {
-               console.error("Error fetching movie credits:", error);
+               console.error("Error fetching tv credits:", error);
             });
       };
 
-      getMovieCredits();
+      getTVCredits();
    }, []);
 
    useEffect(() => {
-      const getMovieVideos = () => {
-         axios
+      const getTVVideos = async () => {
+         await axios
             .get(
-               `https://api.themoviedb.org/3/tv/${params.id}/videos?api_key=${key}&append_to_response=videos`
+               `/api/tv/tvVideos`, {
+                  params: {
+                     id: params.id
+                  }
+               }
             )
             .then(response => {
-               const videos = response.data.results;
-               const trailers = videos.filter((v: any) => v.type === "Trailer");
-               setVideos(trailers);
+               setVideos(response.data);
             })
             .catch(error => {
-               console.error("Error fetching movie credits:", error);
+               console.error("Error fetching movie videos:", error);
             });
       };
 
-      getMovieVideos();
+      getTVVideos();
    }, []);
 
    useEffect(() => {
-      const getMovieImages = () => {
-         axios
+      const getTVImages = async () => {
+         await axios
             .get(
-               `https://api.themoviedb.org/3/tv/${params.id}/images?api_key=${key}`
+               `/api/tv/tvImages`, {
+                  params: {
+                     id: params.id
+                  }
+               }
             )
             .then(response => {
-               const images = response.data.backdrops;
-               const popularImages = images.sort(
-                  (a: any, b: any) => b.vote_average - a.vote_average
-               );
-               setImages(popularImages);
+               setImages(response.data);
             })
             .catch(error => {
-               console.error("Error fetching movie images:", error);
+               console.error("Error fetching tv images:", error);
             });
       };
 
-      getMovieImages();
+      getTVImages();
    }, []);
-
-
 
    useEffect(() => {
       const getEpisodes = () => {
          axios
             .get(
-               `https://api.themoviedb.org/3/tv/${params.id}/season/${seasonNumber}?api_key=${key}`
+               `/api/tv/tvEpisodes`, {
+                  params: {
+                     id: params.id,
+                     seasonNumber: seasonNumber
+                  }
+               }
             )
             .then(response => {
-               const episodesData = response.data.episodes;
-               const runtimeMinutes = episodesData.runtime;
-               const hours = Math.floor(runtimeMinutes / 60);
-               const minutes = runtimeMinutes % 60;
-               const sortEpisodes = episodesData.sort(
-                  (a: any, b: any) => a.episode_number - b.episode_number
-               );
-
-               setEpisodes(episodesData);
+               setEpisodes(response.data);
             })
             .catch(error => {
                console.error("Error fetching episodes:", error);

@@ -17,21 +17,7 @@ import {
    ChangeEvent,
    MouseEventHandler,
 } from "react";
-import {
-   Carousel,
-   CarouselContent,
-   CarouselItem,
-   CarouselPrevious,
-   CarouselNext,
-} from "@/components/ui/carousel";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-   NavigationMenu,
-   NavigationMenuList,
-   NavigationMenuItem,
-   NavigationMenuTrigger,
-   NavigationMenuContent,
-} from "@/components/ui/navigation-menu";
+
 import {
    Pagination,
    PaginationContent,
@@ -42,38 +28,11 @@ import {
    PaginationNext,
 } from "@/components/ui/pagination";
 
-import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
-} from "@/components/ui/select";
-
-import {
-   Popover,
-   PopoverContent,
-   PopoverTrigger,
-} from "@/components/ui/popover";
-
-import {
-   Sheet,
-   SheetContent,
-   SheetDescription,
-   SheetHeader,
-   SheetTitle,
-   SheetTrigger,
-} from "@/components/ui/sheet";
-
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { NavigationMenuLink } from "@radix-ui/react-navigation-menu";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { LoaderCircle } from "lucide-react";
-import { key } from "./key";
 import { Separator } from "@/components/ui/separator";
 import { Image as ImageIcon } from "lucide-react";
 
@@ -106,52 +65,18 @@ export default function Home() {
    const [searchItem, setSearchItem] = useState("");
    const [contentType, setContentType] = useState("movie");
 
-   const getQuery = (title: string) => {
-      axios
-         .get(
-            `https://api.themoviedb.org/3/search/multi?query=${title}&api_key=${key}`
-         )
-         .then(response => {
-            const responseQuery = response.data.results.map((query: any) => {
-               const {
-                  id,
-                  title,
-                  poster_path,
-                  release_date,
-                  name,
-                  profile_path,
-                  first_air_date,
-                  known_for_department,
-                  known_for,
-                  media_type
-               } = query;
-
-               const releaseDateObj = new Date(release_date);
-               const firstAirDateObj = new Date(first_air_date);
-
-               const year = releaseDateObj.getFullYear();
-               const firstAirYear = firstAirDateObj.getFullYear();
-
-               return {
-                  id,
-                  title,
-                  posterPath: poster_path,
-                  year,
-                  name,
-                  profilePath: profile_path,
-                  firstAirYear,
-                  knownForDepartment: known_for_department,
-                  knownFor: known_for,
-                  mediaType: media_type
-               };
-            });
-
-            setDataQuery(responseQuery);
-         });
-   };
-
    useEffect(() => {
+      const getQuery = async (title: string) => {
+         await axios
+            .get(`/api/query`, {
+               params: {
+                  title: title,
+               },
+            })
+            .then(response => setDataQuery(response.data));
+      };
       getQuery(searchItem);
+      setLoading(false);
    }, [searchItem]);
 
    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {

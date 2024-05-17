@@ -114,31 +114,16 @@ export default function MovieDetails() {
    const mobile = useMediaQuery("only screen and (max-width : 1024px)");
 
    useEffect(() => {
-      const getMovieDetails = () => {
+      const getMovieDetails = async () => {
          try {
-            axios
-               .get(
-                  `https://api.themoviedb.org/3/movie/${params.id}?api_key=${key}`
-               )
+            await axios
+               .get(`/api/movie/movieDetails`, {
+                  params: {
+                     id: params.id,
+                  },
+               })
                .then(response => {
-                  const details = response.data;
-                  const runtimeMinutes = details.runtime;
-                  const hours = Math.floor(runtimeMinutes / 60);
-                  const minutes = runtimeMinutes % 60;
-
-                  setDetails({
-                     title: details.title,
-                     posterPath: details.poster_path,
-                     backdropPath: details.backdrop_path,
-                     genres: details.genres,
-                     voteAvg: Number(details.vote_average.toFixed(1)),
-                     voteCount: details.vote_count,
-                     year: details.release_date.slice(0, 4),
-                     overview: details.overview,
-                     hours,
-                     minutes,
-                     tagline: details.tagline,
-                  });
+                  setDetails(response.data);
                });
          } catch (error) {
             console.error(error);
@@ -149,29 +134,25 @@ export default function MovieDetails() {
    }, []);
 
    useEffect(() => {
-      const getMovieCredits = () => {
-         axios
+      const getMovieCredits = async () => {
+         await axios
             .get(
-               `https://api.themoviedb.org/3/movie/${params.id}/credits?api_key=${key}`
+               `/api/movie/movieCredits`, {
+                  params: {
+                     id: params.id
+                  }
+               }
             )
             .then(response => {
-               const cast = response.data.cast;
-               setCreditsCast(cast);
+               const credits = response.data;
 
-               const filterCast = cast.splice(0, 4);
-               const popularCast = filterCast.sort(
-                  (a: any, b: any) => b.popularity - a.popularity
-               );
-               setCastOverview(popularCast);
+               setCreditsCast(credits.cast);
 
-               const crew = response.data.crew;
-               setCreditsCrew(crew);
+               setCastOverview(credits.popularCast);
 
-               const director = crew.filter((c: any) => c.job === "Director");
-               const popularDirectors = director.sort(
-                  (a: any, b: any) => (b.popularity = a.popularity)
-               );
-               setCrewOverview(popularDirectors);
+               setCreditsCrew(credits.crew);
+
+               setCrewOverview(credits.popularDirectors);
             })
             .catch(error => {
                console.error("Error fetching movie credits:", error);
@@ -182,18 +163,20 @@ export default function MovieDetails() {
    }, []);
 
    useEffect(() => {
-      const getMovieVideos = () => {
-         axios
+      const getMovieVideos = async () => {
+         await axios
             .get(
-               `https://api.themoviedb.org/3/movie/${params.id}/videos?api_key=${key}&append_to_response=videos`
+               `/api/movie/movieVideos`, {
+                  params: {
+                     id: params.id
+                  }
+               }
             )
             .then(response => {
-               const videos = response.data.results;
-               const trailers = videos.filter((v: any) => v.type === "Trailer");
-               setVideos(trailers);
+               setVideos(response.data);
             })
             .catch(error => {
-               console.error("Error fetching movie credits:", error);
+               console.error("Error fetching movie videos:", error);
             });
       };
 
@@ -225,17 +208,17 @@ export default function MovieDetails() {
    // }, []);
 
    useEffect(() => {
-      const getMovieImages = () => {
-         axios
+      const getMovieImages = async () => {
+         await axios
             .get(
-               `https://api.themoviedb.org/3/movie/${params.id}/images?api_key=${key}`
+               `/api/movie/movieImages`, {
+                  params: {
+                     id: params.id
+                  }
+               }
             )
             .then(response => {
-               const images = response.data.backdrops;
-               const popularImages = images.sort(
-                  (a: any, b: any) => b.vote_average - a.vote_average
-               );
-               setImages(popularImages);
+               setImages(response.data);
             })
             .catch(error => {
                console.error("Error fetching movie images:", error);

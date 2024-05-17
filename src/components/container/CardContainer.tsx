@@ -62,6 +62,7 @@ export default function CardContainer({
                </CardHeader>
                {backdropPath ? (
                   <Image
+                     loading="lazy"
                      className="rounded-xl w-[18rem] sm:w-[18rem] md:w-[20rem] xl:w-[500px] h-[160px] xl:h-[200px] transition duration-300 ease-in-out hover:scale-[1.15]"
                      alt={alt}
                      src={`https://image.tmdb.org/t/p/w780/${backdropPath}`}

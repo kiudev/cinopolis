@@ -241,6 +241,7 @@ export default function DiscoverLayout({
                   {providers.map(provider => (
                      <CarouselItem className="basis-1/8" key={provider.id}>
                         <Image
+                           loading="lazy"
                            onClick={() => handleProviderClick(provider.id)}
                            className={`w-14 h-14 rounded-xl  ${
                               selectedProvider === provider.id
@@ -325,6 +326,7 @@ export default function DiscoverLayout({
                <DialogContent className="lg:grid lg:grid-rows-3 lg:grid-flow-col gap-10 max-w-[390px] lg:max-w-[1000px] max-h-[1000px] lg:max-h-[500px] border-none text-blue-600 justify-center">
                   {mobile ? (
                      <Image
+                        loading="lazy"
                         className="w-[100vw] sm:w-96 row-span-3"
                         alt={selected.title}
                         src={`https://image.tmdb.org/t/p/w500${selected.backdropPath}`}
@@ -333,6 +335,7 @@ export default function DiscoverLayout({
                      />
                   ) : (
                      <Image
+                        loading="lazy"
                         className="w-[100vw] lg:w-72 row-span-3"
                         alt={selected.title}
                         src={`https://image.tmdb.org/t/p/w500${selected.posterPath}`}
@@ -366,17 +369,17 @@ export default function DiscoverLayout({
                                     <TooltipTrigger asChild>
                                        {actor.profilePath ? (
                                           <div className="relative max-w-xs overflow-hidden bg-cover bg-no-repeat">
-                                          <Image
-                                             className="duration-300 ease-in-out hover:scale-[1.15] w-28 px-2"
-                                             alt={actor.name}
-                                             src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
-                                             width={500}
-                                             height={500}
-                                          />
+                                             <Image
+                                                className="duration-300 ease-in-out hover:scale-[1.15] w-28 px-2"
+                                                alt={actor.name}
+                                                src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
+                                                width={500}
+                                                height={500}
+                                             />
                                           </div>
                                        ) : (
                                           <div className="relative max-w-xs overflow-hidden bg-cover bg-no-repeat">
-                                          <ImageIcon className="duration-300 ease-in-out hover:scale-110 w-28 h-36 px-2 bg-blue-900" />
+                                             <ImageIcon className="duration-300 ease-in-out hover:scale-110 w-28 h-36 px-2 bg-blue-900" />
                                           </div>
                                        )}
                                     </TooltipTrigger>

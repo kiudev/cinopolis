@@ -25,6 +25,9 @@ export default function CardMobileContainer({
    posterPath,
    title,
 }: Props) {
+   const loaderImage = () => {
+      return "Loading...";
+   }
    return (
       <Card
          onClick={onClick}
@@ -52,6 +55,8 @@ export default function CardMobileContainer({
                </CardHeader>
 
                <Image
+                  loader={loaderImage}
+                  loading="lazy"
                   className="rounded-xl w-40"
                   alt={alt}
                   src={`https://image.tmdb.org/t/p/w500/${posterPath}`}
