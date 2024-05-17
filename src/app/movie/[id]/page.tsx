@@ -118,7 +118,7 @@ export default function MovieDetails() {
             await axios
                .get(`/api/movie/movieDetails`, {
                   params: {
-                     id: params.id,
+                     id: params?.id,
                   },
                })
                .then(response => {
@@ -138,7 +138,7 @@ export default function MovieDetails() {
             .get(
                `/api/movie/movieCredits`, {
                   params: {
-                     id: params.id
+                     id: params?.id
                   }
                }
             )
@@ -167,7 +167,7 @@ export default function MovieDetails() {
             .get(
                `/api/movie/movieVideos`, {
                   params: {
-                     id: params.id
+                     id: params?.id
                   }
                }
             )
@@ -212,7 +212,7 @@ export default function MovieDetails() {
             .get(
                `/api/movie/movieImages`, {
                   params: {
-                     id: params.id
+                     id: params?.id
                   }
                }
             )

@@ -139,7 +139,7 @@ export default function TVDetails() {
             await axios
                .get(`/api/tv/tvDetails`, {
                   params: {
-                     id: params.id,
+                     id: params?.id,
                   },
                })
                .then(response => {
@@ -159,7 +159,7 @@ export default function TVDetails() {
             .get(
                `/api/tv/tvCredits`, {
                   params: {
-                     id: params.id
+                     id: params?.id
                   }
                }
             )
@@ -188,7 +188,7 @@ export default function TVDetails() {
             .get(
                `/api/tv/tvVideos`, {
                   params: {
-                     id: params.id
+                     id: params?.id
                   }
                }
             )
@@ -209,7 +209,7 @@ export default function TVDetails() {
             .get(
                `/api/tv/tvImages`, {
                   params: {
-                     id: params.id
+                     id: params?.id
                   }
                }
             )
