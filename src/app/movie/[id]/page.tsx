@@ -2,7 +2,6 @@
 import { useParams } from "next/navigation";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { key } from "@/app/key";
 import Image from "next/image";
 import { Star } from "lucide-react";
 
