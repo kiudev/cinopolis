@@ -3,7 +3,8 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Star, Home } from "lucide-react";
+import Link from "next/link";
 
 import {
    Card,
@@ -135,13 +136,11 @@ export default function MovieDetails() {
    useEffect(() => {
       const getMovieCredits = async () => {
          await axios
-            .get(
-               `/api/movie/movieCredits`, {
-                  params: {
-                     id: params?.id
-                  }
-               }
-            )
+            .get(`/api/movie/movieCredits`, {
+               params: {
+                  id: params?.id,
+               },
+            })
             .then(response => {
                const credits = response.data;
 
@@ -164,13 +163,11 @@ export default function MovieDetails() {
    useEffect(() => {
       const getMovieVideos = async () => {
          await axios
-            .get(
-               `/api/movie/movieVideos`, {
-                  params: {
-                     id: params?.id
-                  }
-               }
-            )
+            .get(`/api/movie/movieVideos`, {
+               params: {
+                  id: params?.id,
+               },
+            })
             .then(response => {
                setVideos(response.data);
             })
@@ -209,13 +206,11 @@ export default function MovieDetails() {
    useEffect(() => {
       const getMovieImages = async () => {
          await axios
-            .get(
-               `/api/movie/movieImages`, {
-                  params: {
-                     id: params?.id
-                  }
-               }
-            )
+            .get(`/api/movie/movieImages`, {
+               params: {
+                  id: params?.id,
+               },
+            })
             .then(response => {
                setImages(response.data);
             })
@@ -229,6 +224,11 @@ export default function MovieDetails() {
 
    return (
       <main className="flex min-w-screen min-h-screen flex-col lg:m-auto items-center justify-between bg-blue-800 lg:py-10">
+         <header className="absolute left-20 z-20">
+            <Link href={"/"}>
+               <Home className="w-10 h-10 text-blue-600" />
+            </Link>
+         </header>
          {details ? (
             <div className="flex flex-col lg:flex-row lg:gap-14 justify-center items-center text-center border-none lg:w-[1100px]">
                <div className="bg-gradient-to-t from-blue-800 from-60% to-transparent w-full h-[18rem] absolute mt-0 lg:mt-[25rem] lg:h-[10rem] lg:z-10 lg:fixed lg:top-0"></div>
@@ -244,7 +244,7 @@ export default function MovieDetails() {
                ) : (
                   <div className="fixed top-10 -ml-[800px]">
                      <Image
-                        className="w-[300px]"
+                        className="w-[300px] h-[420px]"
                         src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
                         width={500}
                         height={500}
@@ -366,14 +366,11 @@ export default function MovieDetails() {
                   </ul>
 
                   {displayCast ? (
-                     <CardContent className="">
+                     <CardContent>
                         {creditsCast ? (
-                           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+                           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 text-left">
                               {creditsCast.map(cast => (
-                                 <div
-                                    key={cast.id}
-                                    className="flex flex-row justify-center gap-2"
-                                 >
+                                 <div key={cast.id} className="">
                                     {mobile ? (
                                        <HoverCard>
                                           <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
@@ -392,7 +389,12 @@ export default function MovieDetails() {
                                     ) : (
                                        <HoverCard>
                                           <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
-                                             {cast.name}
+                                             <p className="text-blue-600 text-md">
+                                                {cast.name}
+                                             </p>
+                                             <p className="text-blue-600 text-opacity-60 text-sm">
+                                                {cast.character}
+                                             </p>
                                           </HoverCardTrigger>
                                           <HoverCardContent className="border-none rounded-xl bg-blue-700 text-blue-600">
                                              <Image
@@ -429,37 +431,34 @@ export default function MovieDetails() {
                         </div>
                      </CardContent>
                   ) : displayCrew ? (
-                     <div className="grid grid-cols-2 lg:grid-cols-7 gap-5">
-                        {creditsCrew.map(cast => (
-                           <div
-                              key={cast.id}
-                              className="flex flex-row justify-center gap-2"
-                           >
+                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 text-left">
+                        {creditsCrew.map(crew => (
+                           <div key={crew.id}>
                               {mobile ? (
                                  <HoverCard>
                                     <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
-                                       {cast.name}
+                                       {crew.name}
                                     </HoverCardTrigger>
                                     <HoverCardContent className="border-none rounded-xl bg-blue-700 text-blue-600">
                                        <Image
                                           className="w-20"
-                                          alt={cast.name}
-                                          src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
+                                          alt={crew.name}
+                                          src={`https://image.tmdb.org/t/p/w185${crew.profile_path}`}
                                           width={500}
                                           height={500}
                                        />
                                     </HoverCardContent>
                                  </HoverCard>
                               ) : (
-                                 <HoverCard>
-                                    <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
-                                       {cast.name}
+                                 <HoverCard openDelay={200} closeDelay={200}>
+                                    <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 ">
+                                       {crew.name}
                                     </HoverCardTrigger>
                                     <HoverCardContent className="border-none rounded-xl bg-blue-700 text-blue-600">
                                        <Image
                                           className="w-20"
-                                          alt={cast.name}
-                                          src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
+                                          alt={crew.name}
+                                          src={`https://image.tmdb.org/t/p/w185${crew.profile_path}`}
                                           width={500}
                                           height={500}
                                        />
@@ -482,20 +481,22 @@ export default function MovieDetails() {
                            </p>
                            {castOverview.map(cast => (
                               <div key={cast.id}>
-                                 <HoverCard>
-                                    <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
-                                       {cast.name}
-                                    </HoverCardTrigger>
-                                    <HoverCardContent className="border-none rounded-xl bg-blue-900 text-blue-600">
-                                       <Image
-                                          className="w-20"
-                                          alt={cast.name}
-                                          src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
-                                          width={500}
-                                          height={500}
-                                       />
-                                    </HoverCardContent>
-                                 </HoverCard>
+                                 <Link href={`/person/${cast.id}`}>
+                                    <HoverCard>
+                                       <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
+                                          {cast.name}
+                                       </HoverCardTrigger>
+                                       <HoverCardContent className="border-none rounded-xl bg-blue-900 text-blue-600">
+                                          <Image
+                                             className="w-20"
+                                             alt={cast.name}
+                                             src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
+                                             width={500}
+                                             height={500}
+                                          />
+                                       </HoverCardContent>
+                                    </HoverCard>
+                                 </Link>
                               </div>
                            ))}
                         </div>
@@ -506,20 +507,22 @@ export default function MovieDetails() {
                            </p>
                            {crewOverview.map(director => (
                               <div key={director.id}>
-                                 <HoverCard>
-                                    <HoverCardTrigger className="cursor-pointer">
-                                       {director.name}
-                                    </HoverCardTrigger>
-                                    <HoverCardContent className="border-none rounded-xl bg-blue-900 text-blue-600">
-                                       <Image
-                                          className="w-20"
-                                          alt={director.name}
-                                          src={`https://image.tmdb.org/t/p/w185${director.profile_path}`}
-                                          width={500}
-                                          height={500}
-                                       />
-                                    </HoverCardContent>
-                                 </HoverCard>{" "}
+                                 <Link href={`/person/${director.id}`}>
+                                    <HoverCard>
+                                       <HoverCardTrigger className="cursor-pointer">
+                                          {director.name}
+                                       </HoverCardTrigger>
+                                       <HoverCardContent className="border-none rounded-xl bg-blue-900 text-blue-600">
+                                          <Image
+                                             className="w-20"
+                                             alt={director.name}
+                                             src={`https://image.tmdb.org/t/p/w185${director.profile_path}`}
+                                             width={500}
+                                             height={500}
+                                          />
+                                       </HoverCardContent>
+                                    </HoverCard>{" "}
+                                 </Link>
                               </div>
                            ))}
                         </div>

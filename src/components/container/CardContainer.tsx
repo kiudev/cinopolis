@@ -37,7 +37,7 @@ export default function CardContainer({
          onClick={onClick}
          onMouseEnter={onMouseEnter}
          onMouseLeave={onMouseLeave}
-         className="border-none w-[18rem] xl:w-[350px] h-[50px] xl:h-[200px] rounded-xl cursor-pointer flex justify-center items-center relative overflow-hidden bg-cover bg-no-repeat"
+         className="border-none w-[18rem] lg:w-[350px] h-[50px] lg:h-[200px] rounded-xl cursor-pointer flex justify-center items-center relative overflow-hidden bg-cover bg-no-repeat"
       >
          {loading ? (
             <div className="flex flex-col space-y-2 gap-3">
@@ -63,7 +63,7 @@ export default function CardContainer({
                {backdropPath ? (
                   <Image
                      loading="lazy"
-                     className="rounded-xl w-[18rem] sm:w-[18rem] md:w-[20rem] xl:w-[500px] h-[160px] xl:h-[200px] transition duration-300 ease-in-out hover:scale-[1.15]"
+                     className="rounded-xl w-[18rem] sm:w-[18rem] md:w-[20rem] lg:w-[500px] h-[160px] lg:h-[200px] transition duration-300 ease-in-out hover:scale-[1.15]"
                      alt={alt}
                      src={`https://image.tmdb.org/t/p/w780/${backdropPath}`}
                      width={500}

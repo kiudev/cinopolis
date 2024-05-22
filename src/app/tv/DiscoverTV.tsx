@@ -4,6 +4,7 @@ import axios from "axios";
 import { ChangeEvent } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import DiscoverLayout from "@/components/layout/DiscoverLayout";
+import { LoaderPinwheel } from "lucide-react";
 
 interface Props {
    loading: boolean;
@@ -68,18 +69,17 @@ export default function DiscoverMovies({
                params: {
                   contentType: contentType,
                   pageNumber: pageNumber,
-                  selectedGenres: selectedGenres.join(','),
+                  selectedGenres: selectedGenres.join(","),
                   voteAvg: voteAvg,
                   voteCount: voteCount,
                   selectedProvider: selectedProvider,
                },
             });
 
-            setData(response.data);
+            setLoading(response.data.loading);
+            setData(response.data.results);
          } catch (error) {
             console.error(error);
-         } finally {
-            setLoading(false);
          }
       };
       getData(currentPage);
@@ -206,29 +206,42 @@ export default function DiscoverMovies({
    };
 
    return (
-      <DiscoverLayout
-         contentType={contentType}
-         genres={genres}
-         handleGenreClick={handleGenreClick}
-         selectedGenres={selectedGenres}
-         voteAvg={voteAvg}
-         handleVoteAvg={handleVoteAvg}
-         handleVoteCount={handleVoteCount}
-         voteCount={voteCount}
-         providers={providers}
-         handleProviderClick={handleProviderClick}
-         selectedProvider={selectedProvider}
-         loading={loading}
-         dialogOpen={dialogOpen}
-         handleOpenChange={handleOpenChange}
-         data={data}
-         handleSelected={handleSelected}
-         setDialogOpen={setDialogOpen}
-         mobile={mobile}
-         handleMouseEnter={handleMouseEnter}
-         setHovered={setHovered}
-         hovered={hovered}
-         selected={selected}
-      />
+      <>
+         {loading ? (
+            <div className="flex justify-center items-center w-full h-screen">
+               <LoaderPinwheel
+                  size={48}
+                  className="text-blue-600 animate-spin"
+               />
+            </div>
+         ) : (
+            <>
+               <DiscoverLayout
+                  contentType={contentType}
+                  genres={genres}
+                  handleGenreClick={handleGenreClick}
+                  selectedGenres={selectedGenres}
+                  voteAvg={voteAvg}
+                  handleVoteAvg={handleVoteAvg}
+                  handleVoteCount={handleVoteCount}
+                  voteCount={voteCount}
+                  providers={providers}
+                  handleProviderClick={handleProviderClick}
+                  selectedProvider={selectedProvider}
+                  loading={loading}
+                  dialogOpen={dialogOpen}
+                  handleOpenChange={handleOpenChange}
+                  data={data}
+                  handleSelected={handleSelected}
+                  setDialogOpen={setDialogOpen}
+                  mobile={mobile}
+                  handleMouseEnter={handleMouseEnter}
+                  setHovered={setHovered}
+                  hovered={hovered}
+                  selected={selected}
+               />
+            </>
+         )}
+      </>
    );
 }

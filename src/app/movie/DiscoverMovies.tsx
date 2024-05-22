@@ -5,6 +5,7 @@ import { ChangeEvent } from "react";
 import { useMediaQuery } from "usehooks-ts";
 
 import DiscoverLayout from "@/components/layout/DiscoverLayout";
+import { Loader, LoaderPinwheel } from "lucide-react";
 
 interface Props {
    loading: boolean;
@@ -63,19 +64,22 @@ export default function DiscoverMovies({
    useEffect(() => {
       const getData = async (pageNumber: number) => {
          try {
-            const response = await axios.get("/api/discover/discoverDataMovie", {
-               params: {
-                  contentType: contentType,
-                  pageNumber: pageNumber,
-                  selectedGenres: selectedGenres.join(','),
-                  voteAvg: voteAvg,
-                  voteCount: voteCount,
-                  selectedProvider: selectedProvider,
-               },
-            });
+            const response = await axios.get(
+               "/api/discover/discoverDataMovie",
+               {
+                  params: {
+                     contentType: contentType,
+                     pageNumber: pageNumber,
+                     selectedGenres: selectedGenres.join(","),
+                     voteAvg: voteAvg,
+                     voteCount: voteCount,
+                     selectedProvider: selectedProvider,
+                  },
+               }
+            );
 
-            setLoading(response.data.loading);
             setData(response.data.results);
+            setLoading(response.data.loading);
          } catch (error) {
             console.error(error);
          }
@@ -185,29 +189,39 @@ export default function DiscoverMovies({
    };
 
    return (
-      <DiscoverLayout
-         contentType={contentType}
-         genres={genres}
-         handleGenreClick={handleGenreClick}
-         selectedGenres={selectedGenres}
-         voteAvg={voteAvg}
-         handleVoteAvg={handleVoteAvg}
-         handleVoteCount={handleVoteCount}
-         voteCount={voteCount}
-         providers={providers}
-         handleProviderClick={handleProviderClick}
-         selectedProvider={selectedProvider}
-         loading={loading}
-         dialogOpen={dialogOpen}
-         handleOpenChange={handleOpenChange}
-         data={data}
-         handleSelected={handleSelected}
-         setDialogOpen={setDialogOpen}
-         mobile={mobile}
-         handleMouseEnter={handleMouseEnter}
-         setHovered={setHovered}
-         hovered={hovered}
-         selected={selected}
-      />
+      <>
+         {loading ? (
+            <div className="flex justify-center items-center w-full h-screen">
+               <LoaderPinwheel size={48} className="text-blue-600 animate-spin" />
+            </div>
+         ) : (
+            <>
+               <DiscoverLayout
+                  contentType={contentType}
+                  genres={genres}
+                  handleGenreClick={handleGenreClick}
+                  selectedGenres={selectedGenres}
+                  voteAvg={voteAvg}
+                  handleVoteAvg={handleVoteAvg}
+                  handleVoteCount={handleVoteCount}
+                  voteCount={voteCount}
+                  providers={providers}
+                  handleProviderClick={handleProviderClick}
+                  selectedProvider={selectedProvider}
+                  loading={loading}
+                  dialogOpen={dialogOpen}
+                  handleOpenChange={handleOpenChange}
+                  data={data}
+                  handleSelected={handleSelected}
+                  setDialogOpen={setDialogOpen}
+                  mobile={mobile}
+                  handleMouseEnter={handleMouseEnter}
+                  setHovered={setHovered}
+                  hovered={hovered}
+                  selected={selected}
+               />
+            </>
+         )}
+      </>
    );
 }

@@ -283,7 +283,7 @@ export default function DiscoverLayout({
 
          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-               <div className="flex flex-wrap justify-center items-center min-h-20 flex-row w-full 2xl:w-[1500px] gap-y-5 gap-x-5 lg:gap-y-32 xl:gap-y-5 z-10 mt-10 2xl:-mt-60">
+               <div className="flex flex-wrap justify-center items-center min-h-20 flex-row w-full 2xl:w-[1500px] gap-y-5 gap-x-5 lg:gap-y-5 xl:gap-y-5 z-10 mt-10 2xl:-mt-60">
                   {data.map(movie =>
                      mobile ? (
                         <div key={movie.id}>
@@ -360,19 +360,20 @@ export default function DiscoverLayout({
                         {selected.overview}
                      </DialogDescription>
                      <footer className="flex flex-row items-center gap-5">
-                        {selected.cast?.map(actor => (
+                        {selected.cast?.map(person => (
                            <TooltipProvider delayDuration={100}>
                               {mobile ? (
                                  <div></div>
                               ) : (
-                                 <Tooltip key={actor.id}>
+                                 <Tooltip key={person.id}>
                                     <TooltipTrigger asChild>
-                                       {actor.profilePath ? (
+                                       <Link href={`/person/${person.id}`}>
+                                       {person.profilePath ? (
                                           <div className="relative max-w-xs overflow-hidden bg-cover bg-no-repeat">
                                              <Image
                                                 className="duration-300 ease-in-out hover:scale-[1.15] w-28 px-2"
-                                                alt={actor.name}
-                                                src={`https://image.tmdb.org/t/p/w185${actor.profilePath}`}
+                                                alt={person.name}
+                                                src={`https://image.tmdb.org/t/p/w185${person.profilePath}`}
                                                 width={500}
                                                 height={500}
                                              />
@@ -382,6 +383,7 @@ export default function DiscoverLayout({
                                              <ImageIcon className="duration-300 ease-in-out hover:scale-110 w-28 h-36 px-2 bg-blue-900" />
                                           </div>
                                        )}
+                                       </Link>
                                     </TooltipTrigger>
 
                                     <TooltipContent
@@ -389,10 +391,10 @@ export default function DiscoverLayout({
                                        className="border-none shadow-none"
                                     >
                                        <p className="font-semibold text-lg">
-                                          {actor.name}
+                                          {person.name}
                                        </p>
                                        <p className="text-blue-600 text-opacity-60">
-                                          {actor.nameCharacter}
+                                          {person.nameCharacter}
                                        </p>
                                     </TooltipContent>
                                  </Tooltip>

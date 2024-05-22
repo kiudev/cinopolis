@@ -152,7 +152,7 @@ export default function Home() {
                                  key={data.id}
                                  className="border-none flex w-full h-auto flex-row items-center bg-blue-900 p-0"
                               >
-                                 <Link href={`/${data.mediaType}/${data.id}`}>
+                                 <Link href={`/${data.mediaType || "person"}/${data.id}`}>
                                     <div className="flex flex-wrap gap-x-3">
                                        {data.posterPath || data.profilePath ? (
                                           <Image

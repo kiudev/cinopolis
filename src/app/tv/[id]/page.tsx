@@ -3,7 +3,8 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { SearchSlashIcon, Star } from "lucide-react";
+import { SearchSlashIcon, Star, Home } from "lucide-react";
+import Link from "next/link";
 
 import {
    Card,
@@ -156,13 +157,11 @@ export default function TVDetails() {
    useEffect(() => {
       const getTVCredits = async () => {
          await axios
-            .get(
-               `/api/tv/tvCredits`, {
-                  params: {
-                     id: params?.id
-                  }
-               }
-            )
+            .get(`/api/tv/tvCredits`, {
+               params: {
+                  id: params?.id,
+               },
+            })
             .then(response => {
                const credits = response.data;
 
@@ -185,13 +184,11 @@ export default function TVDetails() {
    useEffect(() => {
       const getTVVideos = async () => {
          await axios
-            .get(
-               `/api/tv/tvVideos`, {
-                  params: {
-                     id: params?.id
-                  }
-               }
-            )
+            .get(`/api/tv/tvVideos`, {
+               params: {
+                  id: params?.id,
+               },
+            })
             .then(response => {
                setVideos(response.data);
             })
@@ -206,13 +203,11 @@ export default function TVDetails() {
    useEffect(() => {
       const getTVImages = async () => {
          await axios
-            .get(
-               `/api/tv/tvImages`, {
-                  params: {
-                     id: params?.id
-                  }
-               }
-            )
+            .get(`/api/tv/tvImages`, {
+               params: {
+                  id: params?.id,
+               },
+            })
             .then(response => {
                setImages(response.data);
             })
@@ -227,14 +222,12 @@ export default function TVDetails() {
    useEffect(() => {
       const getEpisodes = () => {
          axios
-            .get(
-               `/api/tv/tvEpisodes`, {
-                  params: {
-                     id: params?.id,
-                     seasonNumber: seasonNumber
-                  }
-               }
-            )
+            .get(`/api/tv/tvEpisodes`, {
+               params: {
+                  id: params?.id,
+                  seasonNumber: seasonNumber,
+               },
+            })
             .then(response => {
                setEpisodes(response.data);
             })
@@ -263,7 +256,7 @@ export default function TVDetails() {
                ) : (
                   <div className="fixed top-10 -ml-[800px]">
                      <Image
-                        className="w-[300px]"
+                        className="w-[300px] h-[420px]"
                         src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
                         width={500}
                         height={500}
@@ -525,20 +518,22 @@ export default function TVDetails() {
                            </p>
                            {castOverview.map(cast => (
                               <div key={cast.id}>
-                                 <HoverCard>
-                                    <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
-                                       {cast.name}
-                                    </HoverCardTrigger>
-                                    <HoverCardContent className="border-none rounded-xl bg-blue-900 text-blue-600">
-                                       <Image
-                                          className="w-20"
-                                          alt={cast.name}
-                                          src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
-                                          width={500}
-                                          height={500}
-                                       />
-                                    </HoverCardContent>
-                                 </HoverCard>
+                                 <Link href={`/person/${cast.id}`}>
+                                    <HoverCard>
+                                       <HoverCardTrigger className="cursor-pointer hover:underline hover:decoration-blue-700 hover:underline-offset-4 rounded-xl">
+                                          {cast.name}
+                                       </HoverCardTrigger>
+                                       <HoverCardContent className="border-none rounded-xl bg-blue-900 text-blue-600">
+                                          <Image
+                                             className="w-20"
+                                             alt={cast.name}
+                                             src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
+                                             width={500}
+                                             height={500}
+                                          />
+                                       </HoverCardContent>
+                                    </HoverCard>
+                                 </Link>
                               </div>
                            ))}
                         </div>
@@ -547,22 +542,24 @@ export default function TVDetails() {
                            <p className="text-blue-600 text-opacity-60 mr-5">
                               Director
                            </p>
-                           {crewOverview.map(director => (
-                              <div key={director.id}>
-                                 <HoverCard>
-                                    <HoverCardTrigger className="cursor-pointer">
-                                       {director.name}
-                                    </HoverCardTrigger>
-                                    <HoverCardContent className="border-none rounded-xl bg-blue-900 text-blue-600">
-                                       <Image
-                                          className="w-20"
-                                          alt={director.name}
-                                          src={`https://image.tmdb.org/t/p/w185${director.profile_path}`}
-                                          width={500}
-                                          height={500}
-                                       />
-                                    </HoverCardContent>
-                                 </HoverCard>{" "}
+                           {crewOverview.map(producer => (
+                              <div key={producer.id}>
+                                 <Link href={`/person/${producer.id}`}>
+                                    <HoverCard>
+                                       <HoverCardTrigger className="cursor-pointer">
+                                          {producer.name}
+                                       </HoverCardTrigger>
+                                       <HoverCardContent className="border-none rounded-xl bg-blue-900 text-blue-600">
+                                          <Image
+                                             className="w-20"
+                                             alt={producer.name}
+                                             src={`https://image.tmdb.org/t/p/w185${producer.profile_path}`}
+                                             width={500}
+                                             height={500}
+                                          />
+                                       </HoverCardContent>
+                                    </HoverCard>{" "}
+                                 </Link>
                               </div>
                            ))}
                         </div>
@@ -648,8 +645,12 @@ export default function TVDetails() {
                                     }
                                     className="flex flex-row justify-between items-center"
                                  >
-                                    <p className="text-md font-semibold">{season.name}</p>
-                                    <p className="text-lg absolute left-[50rem] right-0">{season.vote_average}</p>
+                                    <p className="text-md font-semibold">
+                                       {season.name}
+                                    </p>
+                                    <p className="text-lg absolute left-[50rem] right-0">
+                                       {season.vote_average}
+                                    </p>
                                  </AccordionTrigger>
                                  <AccordionContent className="flex flex-col justify-start items-center w-full text-left gap-5">
                                     <header className="text-md">

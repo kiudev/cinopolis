@@ -40,6 +40,9 @@ export default function CarouselContainer({
          <div className="bg-gradient-to-b from-blue-800 from-30% to-transparent to-100% w-full h-[100px] absolute z-10 top-32"></div>
 
          <header className="lg:flex hidden">
+            {loading ? (
+               <div></div>
+            ) : (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                <Carousel
                   plugins={[
@@ -61,6 +64,7 @@ export default function CarouselContainer({
                   <CarouselNext className="text-blue-600 hover:text-blue-600 hover:text-opacity-60 w-20 h-20 -mt-32" />
                </Carousel>
             </Dialog>
+            )}
          </header>
       </>
    );
