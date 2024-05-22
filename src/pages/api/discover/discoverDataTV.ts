@@ -32,7 +32,7 @@ export default async function discoverData(req: any, res: any) {
          genreId: data.genre_ids,
       }));
 
-      res.status(200).json(results);
+      res.status(200).json({ loading: false, results });
    } catch (error) {
       res.status(500).json({ error: "Error receiving discover data" });
    }
