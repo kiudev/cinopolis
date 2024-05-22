@@ -3,7 +3,7 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { SearchSlashIcon, Star, Home } from "lucide-react";
+import { SearchSlashIcon, Star, Home, LoaderPinwheel } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -241,6 +241,11 @@ export default function TVDetails() {
 
    return (
       <main className="flex min-w-screen min-h-screen flex-col lg:m-auto items-center justify-between bg-blue-800 lg:py-10">
+         <header className="absolute left-20 z-20">
+            <Link href={"/"}>
+               <Home className="w-14 h-14 text-blue-600 hover:bg-blue-700 p-2 rounded-xl transition-all" />
+            </Link>
+         </header>
          {details ? (
             <div className="flex flex-col lg:flex-row lg:gap-14 justify-center items-center text-center border-none lg:w-[1100px]">
                <div className="bg-gradient-to-t from-blue-800 from-60% to-transparent w-full h-[18rem] absolute mt-0 lg:mt-[25rem] lg:h-[10rem] lg:z-10 lg:fixed lg:top-0"></div>
@@ -256,7 +261,7 @@ export default function TVDetails() {
                ) : (
                   <div className="fixed top-10 -ml-[800px]">
                      <Image
-                        className="w-[300px] h-[420px]"
+                        className="w-[300px] h-[440px]"
                         src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
                         width={500}
                         height={500}
@@ -712,7 +717,9 @@ export default function TVDetails() {
                </Card>
             </div>
          ) : (
-            <div>Loading...</div>
+            <div className="flex justify-center items-center w-full h-screen">
+               <LoaderPinwheel size={48} className="text-blue-600 animate-spin" />
+            </div>
          )}
       </main>
    );

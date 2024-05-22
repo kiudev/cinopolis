@@ -3,7 +3,7 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Star, Home } from "lucide-react";
+import { Star, Home, LoaderPinwheel } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -226,7 +226,7 @@ export default function MovieDetails() {
       <main className="flex min-w-screen min-h-screen flex-col lg:m-auto items-center justify-between bg-blue-800 lg:py-10">
          <header className="absolute left-20 z-20">
             <Link href={"/"}>
-               <Home className="w-10 h-10 text-blue-600" />
+               <Home className="w-14 h-14 text-blue-600 hover:bg-blue-700 p-2 rounded-xl transition-all" /> 
             </Link>
          </header>
          {details ? (
@@ -244,7 +244,7 @@ export default function MovieDetails() {
                ) : (
                   <div className="fixed top-10 -ml-[800px]">
                      <Image
-                        className="w-[300px] h-[420px]"
+                        className="w-[300px] h-[440px]"
                         src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
                         width={500}
                         height={500}
@@ -602,7 +602,9 @@ export default function MovieDetails() {
                </Card>
             </div>
          ) : (
-            <div>Loading...</div>
+            <div className="flex justify-center items-center w-full h-screen">
+               <LoaderPinwheel size={48} className="text-blue-600 animate-spin" />
+            </div>
          )}
       </main>
    );

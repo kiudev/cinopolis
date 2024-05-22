@@ -78,8 +78,8 @@ export default function DiscoverMovies({
                }
             );
 
-            setData(response.data.results);
             setLoading(response.data.loading);
+            setData(response.data.results);
          } catch (error) {
             console.error(error);
          }

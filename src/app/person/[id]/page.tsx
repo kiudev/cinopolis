@@ -1,9 +1,9 @@
 "use client";
 import { useParams } from "next/navigation";
 import axios from "axios";
-import { useState, useEffect, ChangeEvent, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Home, LoaderPinwheel } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -124,13 +124,18 @@ export default function CastAndCrewDetails() {
 
    return (
       <main className="flex min-w-screen min-h-screen flex-col lg:m-auto items-center justify-between bg-blue-800 lg:py-10">
+         <header className="absolute left-20 z-20">
+            <Link href={"/"}>
+               <Home className="w-14 h-14 text-blue-600 hover:bg-blue-700 p-2 rounded-xl transition-all" />
+            </Link>
+         </header>
          {details ? (
             <div className="flex flex-col lg:flex-row lg:gap-14 justify-center items-center text-center border-none lg:w-[1100px]">
                <div className="bg-gradient-to-t from-blue-800 from-60% to-transparent w-full h-[18rem] absolute mt-0 lg:mt-[25rem] lg:h-[10rem] lg:z-10 lg:fixed lg:top-0"></div>
 
                <div className="fixed top-10 -ml-[800px]">
                   <Image
-                     className="w-[300px] h-[420px]"
+                     className="w-[300px] h-[440px]"
                      src={`https://image.tmdb.org/t/p/w500${details.profilePath}`}
                      width={500}
                      height={500}
@@ -184,7 +189,7 @@ export default function CastAndCrewDetails() {
                                        <Tooltip>
                                           <TooltipTrigger className="relative max-w-xs overflow-hidden bg-cover bg-no-repeat">
                                              <Image
-                                                className="w-[300px] duration-300 ease-in-out hover:scale-[1.15] hover:blur-sm"
+                                                className="w-[300px] duration-300 ease-in-out hover:scale-[1.15] hover:brightness-[0.4]"
                                                 src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                                                 width={500}
                                                 height={500}
@@ -194,7 +199,7 @@ export default function CastAndCrewDetails() {
 
                                           <TooltipContent
                                              side="bottom"
-                                             className="text-blue-600 border-none shadow-none w-[150px] -mt-36 text-sm pointer-events-none bg-blue-900 bg-opacity-60"
+                                             className="text-blue-600 border-none shadow-none w-[150px] -mt-[150px] text-sm pointer-events-none"
                                           >
                                              <p>{movie.title}</p>
                                           </TooltipContent>
@@ -208,10 +213,7 @@ export default function CastAndCrewDetails() {
                         <CarouselNext />
                      </Carousel>
                   ) : (
-                     <Carousel
-                        className="w-full"
-                        opts={{ slidesToScroll: 4, align: "start" }}
-                     >
+                     <Carousel className="w-full" opts={{ slidesToScroll: 4 }}>
                         <CarouselContent className="flex flex-row">
                            {tvCredits.map(tv => (
                               <CarouselItem
@@ -223,7 +225,7 @@ export default function CastAndCrewDetails() {
                                        <Tooltip>
                                           <TooltipTrigger className="relative max-w-xs overflow-hidden bg-cover bg-no-repeat">
                                              <Image
-                                                className="w-[300px] duration-300 ease-in-out hover:scale-[1.15] hover:blur-sm"
+                                                className="w-[300px] duration-300 ease-in-out hover:scale-[1.15] hover:brightness-[0.4]"
                                                 src={`https://image.tmdb.org/t/p/w500${tv.poster_path}`}
                                                 width={500}
                                                 height={500}
@@ -233,7 +235,7 @@ export default function CastAndCrewDetails() {
 
                                           <TooltipContent
                                              side="bottom"
-                                             className="text-blue-600 border-none shadow-none w-[200px] -mt-36 text-sm pointer-events-none"
+                                             className="text-blue-600 border-none shadow-none w-[200px] -mt-[150px] text-sm pointer-events-none"
                                           >
                                              <p>{tv.name}</p>
                                           </TooltipContent>
@@ -250,7 +252,12 @@ export default function CastAndCrewDetails() {
                </Card>
             </div>
          ) : (
-            <div>Loading...</div>
+            <div className="flex justify-center items-center w-full h-screen">
+               <LoaderPinwheel
+                  size={48}
+                  className="text-blue-600 animate-spin"
+               />
+            </div>
          )}
       </main>
    );
